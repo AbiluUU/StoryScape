@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StoryScape — Descubre Tu Próxima Historia Favorita</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Syne:wght@400;500;600;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --purple: #7B5EA7;
+    --purple-light: #A07EC8;
+    --purple-dark: #4A3470;
+    --purple-glow: rgba(123,94,167,0.35);
+    --blue: #3B6FD4;
+    --blue-light: #6B9FFF;
+    --gold: #C9A84C;
+    --gold-light: #E8C97A;
+    --bg: #0A0812;
+    --bg2: #0F0C1A;
+    --glass: rgba(255,255,255,0.04);
+    --glass-border: rgba(255,255,255,0.08);
+    --glass-hover: rgba(255,255,255,0.07);
+    --text: #F0EBF8;
+    --text-muted: rgba(240,235,248,0.55);
+    --text-dim: rgba(240,235,248,0.3);
+    --radius: 16px;
+    --radius-sm: 10px;
+    --radius-lg: 24px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; line-height: 1.6; }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 20% 10%, rgba(123,94,167,0.18) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 80% 80%, rgba(59,111,212,0.12) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 30% at 60% 40%, rgba(201,168,76,0.06) 0%, transparent 50%);
+    pointer-events: none; z-index: 0;
+  }
+
+  .stars { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+  .stars span { position: absolute; border-radius: 50%; background: white; animation: twinkle var(--dur, 3s) ease-in-out infinite; animation-delay: var(--delay, 0s); opacity: 0; }
+  @keyframes twinkle { 0%,100%{opacity:0} 50%{opacity:var(--max-op,0.6)} }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 1.25rem 2rem;
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(10,8,18,0.6); backdrop-filter: blur(24px);
+    border-bottom: 1px solid var(--glass-border); transition: all 0.3s;
+  }
+  nav.scrolled { padding: 0.9rem 2rem; background: rgba(10,8,18,0.88); }
+  .nav-logo {
+    font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.4rem;
+    letter-spacing: -0.02em; cursor: pointer;
+    background: linear-gradient(135deg, var(--purple-light), var(--gold-light));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .nav-logo span { font-family: 'Cormorant Garamond', serif; font-weight: 300; font-style: italic; }
+  .nav-links { display: flex; gap: 2rem; list-style: none; }
+  .nav-links a { font-size: 0.85rem; font-weight: 500; color: var(--text-muted); text-decoration: none; letter-spacing: 0.04em; text-transform: uppercase; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--text); }
+  .nav-cta {
+    padding: 0.55rem 1.4rem; border-radius: 50px; border: 1px solid var(--purple);
+    background: rgba(123,94,167,0.15); color: var(--purple-light);
+    font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: all 0.25s; font-family: 'Inter', sans-serif;
+  }
+  .nav-cta:hover { background: rgba(123,94,167,0.3); box-shadow: 0 0 20px var(--purple-glow); }
+  .nav-mobile-toggle { display: none; cursor: pointer; flex-direction: column; gap: 5px; padding: 4px; }
+  .nav-mobile-toggle span { width: 22px; height: 2px; background: var(--text-muted); border-radius: 2px; display: block; transition: all 0.3s; }
+
+  /* MOBILE NAV DRAWER */
+  .mobile-nav {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 99;
+    background: rgba(10,8,18,0.97); backdrop-filter: blur(30px);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 2rem; opacity: 0; pointer-events: none; transition: opacity 0.3s;
+  }
+  .mobile-nav.open { opacity: 1; pointer-events: all; }
+  .mobile-nav a { font-family: 'Syne', sans-serif; font-size: 1.8rem; font-weight: 700; color: var(--text-muted); text-decoration: none; transition: color 0.2s; }
+  .mobile-nav a:hover { color: var(--text); }
+  .mobile-nav-close { position: absolute; top: 1.5rem; right: 2rem; font-size: 1.5rem; background: none; border: none; color: var(--text-muted); cursor: pointer; }
+
+  section { position: relative; z-index: 1; }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    padding: 8rem 2rem 5rem; text-align: center; position: relative; overflow: hidden;
+  }
+  .hero-orb { position: absolute; border-radius: 50%; filter: blur(80px); pointer-events: none; }
+  .hero-orb-1 { width: 600px; height: 600px; background: radial-gradient(circle, rgba(123,94,167,0.25), transparent 70%); top: -100px; left: -150px; animation: orbFloat1 8s ease-in-out infinite; }
+  .hero-orb-2 { width: 500px; height: 500px; background: radial-gradient(circle, rgba(59,111,212,0.2), transparent 70%); bottom: -80px; right: -100px; animation: orbFloat2 10s ease-in-out infinite; }
+  .hero-orb-3 { width: 300px; height: 300px; background: radial-gradient(circle, rgba(201,168,76,0.15), transparent 70%); top: 40%; left: 50%; transform: translate(-50%,-50%); animation: orbFloat3 6s ease-in-out infinite; }
+  @keyframes orbFloat1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(30px,20px)} }
+  @keyframes orbFloat2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-20px,30px)} }
+  @keyframes orbFloat3 { 0%,100%{transform:translate(-50%,-50%) scale(1)} 50%{transform:translate(-50%,-50%) scale(1.1)} }
+
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.4rem 1.1rem; border-radius: 50px;
+    border: 1px solid rgba(201,168,76,0.3); background: rgba(201,168,76,0.08);
+    font-size: 0.78rem; font-weight: 500; color: var(--gold-light);
+    letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 2rem;
+    animation: fadeUp 0.8s ease both;
+  }
+  .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); animation: pulseDot 2s ease-in-out infinite; }
+  @keyframes pulseDot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.7)} }
+
+  .hero-title {
+    font-family: 'Cormorant Garamond', serif; font-weight: 300;
+    font-size: clamp(3rem, 8vw, 6.5rem); line-height: 1.05;
+    letter-spacing: -0.02em; margin-bottom: 1.5rem; animation: fadeUp 0.9s 0.1s ease both;
+  }
+  .hero-title .accent {
+    font-style: italic;
+    background: linear-gradient(135deg, var(--purple-light) 0%, var(--gold-light) 60%, var(--blue-light) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .hero-sub { font-size: clamp(1rem, 2vw, 1.2rem); color: var(--text-muted); max-width: 600px; margin: 0 auto 3rem; font-weight: 300; line-height: 1.75; animation: fadeUp 1s 0.2s ease both; }
+  .hero-buttons { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; animation: fadeUp 1s 0.35s ease both; }
+
+  .btn-primary {
+    padding: 0.9rem 2.2rem; border-radius: 50px;
+    background: linear-gradient(135deg, var(--purple), var(--blue));
+    color: white; font-family: 'Syne', sans-serif; font-weight: 600;
+    font-size: 0.95rem; border: none; cursor: pointer; transition: all 0.3s;
+    letter-spacing: 0.02em; position: relative; overflow: hidden;
+  }
+  .btn-primary::after { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg,rgba(255,255,255,0.15),transparent); opacity: 0; transition: opacity 0.3s; }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(123,94,167,0.5); }
+  .btn-primary:hover::after { opacity: 1; }
+  .btn-primary:active { transform: translateY(0) scale(0.98); }
+
+  .btn-secondary {
+    padding: 0.9rem 2.2rem; border-radius: 50px;
+    background: transparent; border: 1px solid var(--glass-border);
+    color: var(--text); font-family: 'Syne', sans-serif; font-weight: 600;
+    font-size: 0.95rem; cursor: pointer; transition: all 0.3s;
+    letter-spacing: 0.02em; backdrop-filter: blur(10px);
+  }
+  .btn-secondary:hover { background: var(--glass); border-color: var(--purple); box-shadow: 0 0 30px var(--purple-glow); transform: translateY(-2px); }
+  .btn-secondary:active { transform: translateY(0) scale(0.98); }
+
+  .hero-stats { display: flex; gap: 3rem; justify-content: center; margin-top: 4rem; animation: fadeUp 1s 0.5s ease both; }
+  .hero-stat { text-align: center; }
+  .hero-stat-num {
+    font-family: 'Syne', sans-serif; font-weight: 800; font-size: 2rem;
+    background: linear-gradient(135deg, var(--text), var(--purple-light));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .hero-stat-label { font-size: 0.78rem; color: var(--text-dim); letter-spacing: 0.06em; text-transform: uppercase; margin-top: 0.2rem; }
+
+  /* BOOK STRIP */
+  .book-strip {
+    overflow: hidden; padding: 3rem 0;
+    border-top: 1px solid var(--glass-border); border-bottom: 1px solid var(--glass-border);
+    position: relative; z-index: 1;
+  }
+  .book-strip::before, .book-strip::after {
+    content: ''; position: absolute; top: 0; bottom: 0; width: 120px; z-index: 2; pointer-events: none;
+  }
+  .book-strip::before { left: 0; background: linear-gradient(to right, var(--bg), transparent); }
+  .book-strip::after { right: 0; background: linear-gradient(to left, var(--bg), transparent); }
+  .book-strip-inner { display: flex; gap: 1.5rem; width: max-content; animation: scrollStrip 35s linear infinite; }
+  .book-strip:hover .book-strip-inner { animation-play-state: paused; }
+  @keyframes scrollStrip { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+  .book-chip {
+    display: flex; align-items: center; gap: 0.6rem;
+    padding: 0.5rem 1rem; border-radius: 50px;
+    background: var(--glass); border: 1px solid var(--glass-border);
+    white-space: nowrap; font-size: 0.85rem; color: var(--text-muted);
+    flex-shrink: 0; transition: all 0.2s; cursor: default;
+  }
+  .book-chip:hover { background: var(--glass-hover); color: var(--text); border-color: rgba(123,94,167,0.4); }
+
+  /* SECTION COMMON */
+  .section-wrap { max-width: 1200px; margin: 0 auto; padding: 6rem 2rem; }
+  .section-label { font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--purple-light); font-weight: 500; margin-bottom: 0.8rem; }
+  .section-title { font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: clamp(2.2rem, 5vw, 3.5rem); line-height: 1.15; margin-bottom: 1rem; }
+  .section-sub { color: var(--text-muted); font-size: 1rem; max-width: 550px; line-height: 1.75; }
+  .section-header { margin-bottom: 3.5rem; }
+  .section-divider { width: 60px; height: 2px; background: linear-gradient(90deg, var(--purple), var(--gold)); border-radius: 2px; margin: 1.25rem 0; }
+
+  /* EMOTION DISCOVERY */
+  .emotion-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 3rem; }
+  .emotion-card {
+    position: relative; padding: 2rem 1.5rem;
+    border-radius: var(--radius); background: var(--glass);
+    border: 1px solid var(--glass-border); cursor: pointer;
+    transition: all 0.35s; overflow: hidden; text-align: center;
+  }
+  .emotion-card::before { content: ''; position: absolute; inset: 0; background: var(--card-gradient, linear-gradient(135deg,rgba(123,94,167,0.15),transparent)); opacity: 0; transition: opacity 0.35s; border-radius: inherit; }
+  .emotion-card:hover::before, .emotion-card.active::before { opacity: 1; }
+  .emotion-card:hover, .emotion-card.active { border-color: var(--card-color, var(--purple)); transform: translateY(-4px); box-shadow: 0 16px 48px var(--card-shadow, var(--purple-glow)); }
+  .emotion-emoji { font-size: 2.5rem; margin-bottom: 0.75rem; display: block; }
+  .emotion-label { font-family: 'Syne', sans-serif; font-weight: 600; font-size: 0.95rem; }
+  .emotion-desc { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.3rem; }
+
+  .book-recommendations { border-radius: var(--radius-lg); background: var(--glass); border: 1px solid var(--glass-border); padding: 2rem; backdrop-filter: blur(20px); display: none; animation: fadeUp 0.5s ease both; }
+  .book-recommendations.visible { display: block; }
+  .rec-title { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; margin-bottom: 1.5rem; font-style: italic; color: var(--gold-light); }
+  .book-cards-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 1rem; }
+  .book-card { border-radius: var(--radius-sm); background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); overflow: hidden; transition: transform 0.3s, box-shadow 0.3s; cursor: pointer; }
+  .book-card:hover { transform: translateY(-6px) scale(1.02); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+  .book-cover { width: 100%; aspect-ratio: 2/3; display: flex; align-items: flex-end; padding: 1rem; position: relative; overflow: hidden; }
+  .book-cover-bg { position: absolute; inset: 0; transition: transform 0.5s; }
+  .book-card:hover .book-cover-bg { transform: scale(1.05); }
+  .book-cover-title { position: relative; z-index: 1; font-family: 'Cormorant Garamond', serif; font-size: 0.95rem; font-weight: 600; line-height: 1.2; color: white; text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
+  .book-info { padding: 0.75rem; }
+  .book-author { font-size: 0.75rem; color: var(--text-muted); }
+  .book-rating { font-size: 0.75rem; color: var(--gold); margin-top: 0.2rem; }
+
+  /* AI COMPANION */
+  .ai-companion-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center; }
+  .ai-visual { position: relative; display: flex; align-items: center; justify-content: center; height: 460px; }
+  .ai-orb { width: 280px; height: 280px; border-radius: 50%; background: radial-gradient(circle at 40% 40%, var(--purple-light), var(--purple-dark)); position: relative; animation: aiPulse 4s ease-in-out infinite; box-shadow: 0 0 60px var(--purple-glow), 0 0 120px rgba(123,94,167,0.15); }
+  .ai-orb::before { content: ''; position: absolute; inset: -2px; border-radius: 50%; background: conic-gradient(from 0deg, var(--purple), var(--blue), var(--gold), var(--purple)); z-index: -1; animation: rotateBorder 4s linear infinite; }
+  .ai-orb::after { content: '✦'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 5rem; color: rgba(255,255,255,0.9); }
+  @keyframes aiPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.03)} }
+  @keyframes rotateBorder { to{transform:rotate(360deg)} }
+  .ai-floating-chips { position: absolute; inset: 0; pointer-events: none; }
+  .ai-chip { position: absolute; padding: 0.5rem 0.9rem; border-radius: 50px; background: rgba(15,12,26,0.85); border: 1px solid var(--glass-border); font-size: 0.78rem; color: var(--text-muted); backdrop-filter: blur(10px); white-space: nowrap; animation: chipFloat 6s ease-in-out infinite; animation-delay: var(--chip-delay, 0s); }
+  .ai-chip:nth-child(1) { top: 10%; left: 0%; --chip-delay: 0s; }
+  .ai-chip:nth-child(2) { top: 25%; right: 0%; --chip-delay: 1s; }
+  .ai-chip:nth-child(3) { bottom: 25%; left: 5%; --chip-delay: 2s; }
+  .ai-chip:nth-child(4) { bottom: 15%; right: 5%; --chip-delay: 3s; }
+  @keyframes chipFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+  .ai-features { display: flex; flex-direction: column; gap: 1.25rem; margin-top: 2.5rem; }
+  .ai-feature { display: flex; align-items: flex-start; gap: 1rem; padding: 1.25rem; border-radius: var(--radius); background: var(--glass); border: 1px solid var(--glass-border); transition: all 0.3s; cursor: pointer; }
+  .ai-feature:hover { background: var(--glass-hover); border-color: var(--purple); transform: translateX(6px); }
+  .ai-feature-icon { width: 42px; height: 42px; border-radius: 10px; background: rgba(123,94,167,0.2); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; border: 1px solid rgba(123,94,167,0.3); }
+  .ai-feature-title { font-weight: 500; font-size: 0.95rem; margin-bottom: 0.2rem; }
+  .ai-feature-desc { font-size: 0.82rem; color: var(--text-muted); line-height: 1.5; }
+
+  /* JOURNEY */
+  .journey-section { background: linear-gradient(180deg, transparent, rgba(123,94,167,0.05), transparent); }
+  .journey-path { position: relative; padding: 2rem 0; }
+  .journey-line { position: absolute; top: 50%; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--purple-dark), var(--purple), var(--blue), var(--gold)); transform: translateY(-50%); z-index: 0; }
+  .journey-steps { display: grid; grid-template-columns: repeat(4,1fr); gap: 1rem; position: relative; z-index: 1; }
+  .journey-step { display: flex; flex-direction: column; align-items: center; gap: 1rem; padding: 1.5rem 1rem; border-radius: var(--radius); background: var(--bg2); border: 1px solid var(--glass-border); text-align: center; transition: all 0.3s; cursor: pointer; }
+  .journey-step:hover, .journey-step.active { border-color: var(--step-color, var(--purple)); box-shadow: 0 0 30px var(--step-shadow, var(--purple-glow)); transform: translateY(-6px); }
+  .journey-step-icon { width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; background: var(--step-bg, rgba(123,94,167,0.2)); border: 2px solid var(--step-color, var(--purple)); transition: all 0.3s; }
+  .journey-step:hover .journey-step-icon, .journey-step.active .journey-step-icon { background: var(--step-color, var(--purple)); box-shadow: 0 0 20px var(--step-shadow, var(--purple-glow)); }
+  .journey-step-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.88rem; }
+  .journey-step-label { font-size: 0.75rem; color: var(--text-muted); padding: 0.25rem 0.75rem; border-radius: 50px; background: var(--glass); border: 1px solid var(--glass-border); }
+  .journey-step-books { font-size: 0.78rem; color: var(--text-dim); }
+  .journey-progress { margin-top: 2.5rem; padding: 2rem; border-radius: var(--radius); background: var(--glass); border: 1px solid var(--glass-border); display: grid; grid-template-columns: 1fr auto; gap: 1.5rem; align-items: center; }
+  .progress-label { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem; }
+  .progress-bar-wrap { height: 8px; border-radius: 4px; background: rgba(255,255,255,0.06); overflow: hidden; }
+  .progress-bar-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--purple), var(--blue)); width: 0%; transition: width 1.5s ease; }
+  .progress-xp { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.8rem; background: linear-gradient(135deg, var(--gold), var(--gold-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-align: right; }
+  .progress-xp-label { font-size: 0.75rem; color: var(--text-dim); text-align: right; }
+
+  /* LIBRARY */
+  .library-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+  .library-card { padding: 1.75rem; border-radius: var(--radius); background: var(--glass); border: 1px solid var(--glass-border); backdrop-filter: blur(10px); transition: all 0.3s; }
+  .library-card:hover { background: var(--glass-hover); border-color: rgba(123,94,167,0.3); transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+  .library-card-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.25rem; }
+  .library-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; background: var(--lib-icon-bg, rgba(123,94,167,0.2)); border: 1px solid var(--lib-icon-border, rgba(123,94,167,0.3)); }
+  .library-card-title { font-family: 'Syne', sans-serif; font-weight: 600; font-size: 0.9rem; }
+  .library-card-value { font-family: 'Cormorant Garamond', serif; font-size: 3rem; font-weight: 300; line-height: 1; color: var(--lib-color, var(--purple-light)); margin-bottom: 0.5rem; }
+  .library-card-sub { font-size: 0.82rem; color: var(--text-muted); }
+  .genre-pills { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }
+  .genre-pill { padding: 0.3rem 0.75rem; border-radius: 50px; font-size: 0.75rem; background: rgba(123,94,167,0.15); border: 1px solid rgba(123,94,167,0.3); color: var(--purple-light); }
+  .goal-bar-wrap { margin-top: 1rem; }
+  .goal-bar-label { display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.4rem; }
+  .streak-flames { display: flex; gap: 0.35rem; margin-top: 0.75rem; }
+  .streak-flame { font-size: 1.1rem; filter: grayscale(1); transition: filter 0.2s; }
+  .streak-flame.active { filter: grayscale(0); }
+
+  /* COMMUNITY */
+  .community-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem; }
+  .community-card { padding: 1.5rem; border-radius: var(--radius); background: var(--glass); border: 1px solid var(--glass-border); transition: all 0.3s; cursor: pointer; }
+  .community-card:hover { background: var(--glass-hover); border-color: var(--purple); transform: translateY(-3px); }
+  .user-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+  .avatar { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.9rem; border: 2px solid var(--avatar-border, var(--purple)); background: var(--avatar-bg, rgba(123,94,167,0.2)); color: var(--avatar-color, var(--purple-light)); flex-shrink: 0; }
+  .user-name { font-weight: 500; font-size: 0.95rem; }
+  .user-match { font-size: 0.75rem; color: var(--gold); margin-top: 0.1rem; }
+  .user-genres { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.75rem; }
+  .mini-pill { padding: 0.2rem 0.6rem; border-radius: 50px; font-size: 0.7rem; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: var(--text-muted); }
+  .user-quote { font-family: 'Cormorant Garamond', serif; font-size: 0.95rem; color: var(--text-muted); font-style: italic; line-height: 1.4; }
+  .connect-btn { margin-top: 1rem; width: 100%; padding: 0.5rem; border-radius: 50px; border: 1px solid var(--glass-border); background: transparent; color: var(--text-muted); font-size: 0.8rem; cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif; }
+  .connect-btn:hover { background: rgba(123,94,167,0.2); border-color: var(--purple); color: var(--purple-light); }
+  .connect-btn.connected { background: rgba(74,222,128,0.1); border-color: rgba(74,222,128,0.4); color: #4ade80; }
+
+  /* STATS */
+  .stats-wrap { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; }
+  .stat-card { padding: 2rem 1.75rem; border-radius: var(--radius); background: var(--glass); border: 1px solid var(--glass-border); position: relative; overflow: hidden; transition: all 0.3s; }
+  .stat-card::before { content: ''; position: absolute; bottom: -30px; right: -30px; width: 120px; height: 120px; border-radius: 50%; background: var(--stat-glow, rgba(123,94,167,0.12)); filter: blur(20px); transition: all 0.3s; }
+  .stat-card:hover::before { transform: scale(1.5); }
+  .stat-card:hover { transform: translateY(-4px); border-color: var(--stat-color, var(--purple)); box-shadow: 0 16px 40px rgba(0,0,0,0.3); }
+  .stat-icon { font-size: 1.5rem; margin-bottom: 1rem; display: block; }
+  .stat-num { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 2.8rem; color: var(--stat-color, var(--purple-light)); line-height: 1; margin-bottom: 0.4rem; }
+  .stat-label { font-size: 0.85rem; color: var(--text-muted); }
+  .stat-trend { font-size: 0.75rem; color: var(--gold); margin-top: 0.5rem; }
+
+  /* TESTIMONIALS */
+  .testimonials-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
+  .testimonial-card { padding: 2rem; border-radius: var(--radius); background: var(--glass); border: 1px solid var(--glass-border); position: relative; transition: all 0.3s; }
+  .testimonial-card:hover { transform: translateY(-4px); border-color: rgba(201,168,76,0.3); box-shadow: 0 16px 40px rgba(0,0,0,0.3); }
+  .quote-mark { font-family: 'Cormorant Garamond', serif; font-size: 4rem; line-height: 1; color: var(--gold); opacity: 0.4; position: absolute; top: 1rem; left: 1.5rem; }
+  .testimonial-text { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; line-height: 1.65; color: var(--text-muted); margin-top: 1.5rem; font-style: italic; }
+  .testimonial-author { display: flex; align-items: center; gap: 0.75rem; margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--glass-border); }
+  .author-name { font-weight: 500; font-size: 0.9rem; }
+  .author-role { font-size: 0.78rem; color: var(--text-muted); }
+  .author-stars { font-size: 0.78rem; color: var(--gold); }
+
+  /* FAQ */
+  .faq-list { display: flex; flex-direction: column; gap: 0.75rem; max-width: 750px; }
+  .faq-item { border-radius: var(--radius-sm); background: var(--glass); border: 1px solid var(--glass-border); overflow: hidden; transition: border-color 0.3s; }
+  .faq-item.open { border-color: rgba(123,94,167,0.4); }
+  .faq-question { padding: 1.25rem 1.5rem; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-weight: 500; font-size: 0.95rem; transition: background 0.2s; user-select: none; }
+  .faq-question:hover { background: var(--glass-hover); }
+  .faq-chevron { width: 24px; height: 24px; border-radius: 50%; background: rgba(123,94,167,0.2); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; transition: transform 0.3s, background 0.3s; flex-shrink: 0; }
+  .faq-item.open .faq-chevron { transform: rotate(180deg); background: var(--purple); }
+  .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.35s ease; }
+  .faq-item.open .faq-answer { max-height: 200px; }
+  .faq-answer-inner { padding: 0 1.5rem 1.25rem; font-size: 0.875rem; color: var(--text-muted); line-height: 1.75; }
+
+  /* CTA */
+  .cta-section { position: relative; overflow: hidden; text-align: center; padding: 6rem 2rem; }
+  .cta-section::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 70% 60% at 50% 50%, rgba(123,94,167,0.2), transparent); pointer-events: none; }
+  .cta-wrap { max-width: 650px; margin: 0 auto; position: relative; z-index: 1; }
+  .cta-title { font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: clamp(2.5rem, 6vw, 4rem); margin-bottom: 1rem; line-height: 1.1; }
+  .cta-sub { color: var(--text-muted); font-size: 1rem; margin-bottom: 2.5rem; line-height: 1.7; }
+
+  /* FOOTER */
+  footer { position: relative; z-index: 1; border-top: 1px solid var(--glass-border); padding: 4rem 2rem 2rem; background: rgba(10,8,18,0.5); }
+  .footer-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 3rem; margin-bottom: 3rem; }
+  .footer-brand-desc { font-size: 0.85rem; color: var(--text-muted); line-height: 1.75; margin-top: 1rem; max-width: 260px; }
+  .footer-col-title { font-family: 'Syne', sans-serif; font-weight: 600; font-size: 0.85rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 1rem; }
+  .footer-links { display: flex; flex-direction: column; gap: 0.6rem; }
+  .footer-links a { font-size: 0.875rem; color: var(--text-muted); text-decoration: none; transition: color 0.2s; }
+  .footer-links a:hover { color: var(--text); }
+  .footer-bottom { max-width: 1200px; margin: 0 auto; padding-top: 2rem; border-top: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+  .footer-copy { font-size: 0.8rem; color: var(--text-dim); }
+  .footer-socials { display: flex; gap: 0.75rem; }
+  .social-btn { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: center; font-size: 0.85rem; color: var(--text-muted); cursor: pointer; transition: all 0.2s; text-decoration: none; background: transparent; }
+  .social-btn:hover { border-color: var(--purple); color: var(--purple-light); background: rgba(123,94,167,0.1); }
+
+  /* FLOATING AI */
+  .ai-float { position: fixed; bottom: 2rem; right: 2rem; z-index: 200; display: flex; flex-direction: column; align-items: flex-end; gap: 0.75rem; }
+  .ai-float-bubble { background: rgba(15,12,26,0.95); border: 1px solid rgba(123,94,167,0.5); border-radius: 16px 16px 4px 16px; padding: 0.75rem 1rem; font-size: 0.8rem; color: var(--text-muted); backdrop-filter: blur(20px); max-width: 230px; display: none; animation: bubblePop 0.3s ease both; box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
+  .ai-float-bubble.visible { display: block; }
+  @keyframes bubblePop { from{opacity:0;transform:scale(0.8) translateY(10px)} to{opacity:1;transform:scale(1) translateY(0)} }
+  .ai-float-bubble strong { color: var(--purple-light); display: block; margin-bottom: 0.2rem; }
+  .ai-float-btn { width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, var(--purple), var(--blue)); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: 0 8px 32px var(--purple-glow), 0 0 0 0 rgba(123,94,167,0.4); animation: aiFloatPulse 3s ease-in-out infinite; transition: transform 0.2s; position: relative; }
+  .ai-float-btn:hover { transform: scale(1.1); }
+  .ai-float-btn .notif { position: absolute; top: 2px; right: 2px; width: 14px; height: 14px; border-radius: 50%; background: var(--gold); border: 2px solid var(--bg); font-size: 0.55rem; display: flex; align-items: center; justify-content: center; color: var(--bg); font-weight: 700; }
+  @keyframes aiFloatPulse { 0%,100%{box-shadow:0 8px 32px var(--purple-glow),0 0 0 0 rgba(123,94,167,0.4)} 50%{box-shadow:0 8px 32px var(--purple-glow),0 0 0 10px rgba(123,94,167,0)} }
+
+  /* AI MODAL */
+  .ai-modal { position: fixed; bottom: 7rem; right: 2rem; z-index: 201; width: 380px; border-radius: var(--radius); background: rgba(15,12,26,0.97); border: 1px solid rgba(123,94,167,0.4); backdrop-filter: blur(30px); box-shadow: 0 24px 80px rgba(0,0,0,0.6); overflow: hidden; flex-direction: column; opacity: 0; transform: translateY(20px) scale(0.95); transition: opacity 0.3s ease, transform 0.3s ease; pointer-events: none; }
+  .ai-modal.visible { opacity: 1; transform: translateY(0) scale(1); pointer-events: all; }
+  .ai-modal-header { padding: 1.25rem 1.5rem; background: linear-gradient(135deg,rgba(123,94,167,0.2),rgba(59,111,212,0.1)); border-bottom: 1px solid var(--glass-border); display: flex; align-items: center; gap: 0.75rem; }
+  .ai-modal-avatar { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, var(--purple), var(--blue)); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+  .ai-modal-name { font-weight: 600; font-size: 0.92rem; }
+  .ai-modal-status { font-size: 0.72rem; color: #4ade80; display: flex; align-items: center; gap: 0.3rem; margin-top: 0.1rem; }
+  .status-dot-green { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; animation: pulseDot 2s ease-in-out infinite; }
+  .ai-modal-close { margin-left: auto; background: transparent; border: none; color: var(--text-muted); font-size: 1.1rem; cursor: pointer; padding: 0.25rem; line-height: 1; transition: color 0.2s; }
+  .ai-modal-close:hover { color: var(--text); }
+  .ai-modal-messages { padding: 1.25rem; min-height: 220px; max-height: 320px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.75rem; scroll-behavior: smooth; }
+  .ai-modal-messages::-webkit-scrollbar { width: 4px; }
+  .ai-modal-messages::-webkit-scrollbar-track { background: transparent; }
+  .ai-modal-messages::-webkit-scrollbar-thumb { background: rgba(123,94,167,0.3); border-radius: 2px; }
+  .ai-msg { max-width: 85%; padding: 0.75rem 1rem; border-radius: 14px; font-size: 0.85rem; line-height: 1.55; }
+  .ai-msg.bot { background: rgba(123,94,167,0.15); border: 1px solid rgba(123,94,167,0.2); align-self: flex-start; border-radius: 4px 14px 14px 14px; }
+  .ai-msg.user { background: linear-gradient(135deg, var(--purple), var(--blue)); align-self: flex-end; border-radius: 14px 14px 4px 14px; }
+  .ai-typing { display: flex; gap: 4px; padding: 0.6rem 1rem; align-self: flex-start; }
+  .ai-typing span { width: 7px; height: 7px; border-radius: 50%; background: var(--purple-light); animation: typingBounce 1.2s ease-in-out infinite; }
+  .ai-typing span:nth-child(2) { animation-delay: 0.2s; }
+  .ai-typing span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes typingBounce { 0%,100%{transform:translateY(0);opacity:0.4} 50%{transform:translateY(-5px);opacity:1} }
+  .ai-modal-input-row { padding: 1rem 1.25rem; border-top: 1px solid var(--glass-border); display: flex; gap: 0.75rem; align-items: center; }
+  .ai-modal-input { flex: 1; padding: 0.65rem 1rem; border-radius: 50px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: var(--text); font-size: 0.85rem; font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.2s; }
+  .ai-modal-input:focus { border-color: var(--purple); }
+  .ai-modal-input::placeholder { color: var(--text-dim); }
+  .ai-modal-send { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--purple), var(--blue)); border: none; color: white; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s, box-shadow 0.2s; flex-shrink: 0; }
+  .ai-modal-send:hover { transform: scale(1.1); box-shadow: 0 4px 16px var(--purple-glow); }
+  .azure-badge { text-align: center; padding: 0.5rem; font-size: 0.65rem; color: var(--text-dim); letter-spacing: 0.05em; background: rgba(0,0,0,0.2); }
+
+  /* TOAST */
+  .toast { position: fixed; bottom: 7rem; left: 50%; transform: translateX(-50%) translateY(20px); z-index: 300; padding: 0.75rem 1.5rem; border-radius: 50px; background: rgba(15,12,26,0.95); border: 1px solid rgba(123,94,167,0.4); backdrop-filter: blur(20px); font-size: 0.875rem; color: var(--text); opacity: 0; transition: all 0.3s; pointer-events: none; white-space: nowrap; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* MODAL OVERLAY */
+  .modal-overlay { position: fixed; inset: 0; z-index: 250; background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s; padding: 2rem; }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal-box { background: var(--bg2); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); padding: 2.5rem; max-width: 500px; width: 100%; animation: fadeUp 0.3s ease both; position: relative; }
+  .modal-box h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 300; margin-bottom: 0.5rem; }
+  .modal-box p { color: var(--text-muted); font-size: 0.9rem; line-height: 1.7; margin-bottom: 1.5rem; }
+  .modal-close-btn { position: absolute; top: 1rem; right: 1.25rem; background: none; border: none; color: var(--text-muted); font-size: 1.1rem; cursor: pointer; transition: color 0.2s; }
+  .modal-close-btn:hover { color: var(--text); }
+  .modal-input { width: 100%; padding: 0.8rem 1.1rem; border-radius: var(--radius-sm); background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: var(--text); font-size: 0.9rem; font-family: 'Inter', sans-serif; outline: none; margin-bottom: 1rem; transition: border-color 0.2s; }
+  .modal-input:focus { border-color: var(--purple); }
+  .modal-input::placeholder { color: var(--text-dim); }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+  .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.visible { opacity: 1; transform: none; }
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.2s; }
+  .reveal-delay-3 { transition-delay: 0.3s; }
+  .reveal-delay-4 { transition-delay: 0.4s; }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .nav-links { display: none; }
+    .nav-mobile-toggle { display: flex; }
+    .ai-companion-wrap { grid-template-columns: 1fr; }
+    .ai-visual { height: 300px; }
+    .ai-orb { width: 180px; height: 180px; }
+    .journey-steps { grid-template-columns: 1fr 1fr; }
+    .journey-line { display: none; }
+    .footer-inner { grid-template-columns: 1fr 1fr; }
+    .hero-stats { gap: 1.5rem; }
+  }
+  @media (max-width: 600px) {
+    .journey-steps { grid-template-columns: 1fr; }
+    .footer-inner { grid-template-columns: 1fr; }
+    .hero-buttons { flex-direction: column; align-items: center; }
+    .ai-modal { width: calc(100vw - 2rem); right: 1rem; }
+    .ai-float { right: 1rem; bottom: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- MOBILE NAV -->
+<div class="mobile-nav" id="mobileNav">
+  <button class="mobile-nav-close" onclick="closeMobileNav()">✕</button>
+  <a href="#descubrir" onclick="closeMobileNav()">Descubrir</a>
+  <a href="#companion" onclick="closeMobileNav()">Compañero IA</a>
+  <a href="#viaje" onclick="closeMobileNav()">Mi Viaje</a>
+  <a href="#biblioteca" onclick="closeMobileNav()">Biblioteca</a>
+  <a href="#comunidad" onclick="closeMobileNav()">Comunidad</a>
+  <a href="#faq" onclick="closeMobileNav()">Preguntas</a>
+</div>
+
+<!-- MODAL REGISTRO -->
+<div class="modal-overlay" id="modalRegistro">
+  <div class="modal-box">
+    <button class="modal-close-btn" onclick="closeModal('modalRegistro')">✕</button>
+    <div class="section-label" style="margin-bottom:0.5rem">✦ Únete gratis</div>
+    <h3>Comienza tu aventura literaria</h3>
+    <p>Crea tu cuenta y recibe recomendaciones personalizadas basadas en tus emociones y preferencias.</p>
+    <input class="modal-input" type="text" placeholder="Tu nombre">
+    <input class="modal-input" type="email" placeholder="Tu correo electrónico">
+    <input class="modal-input" type="password" placeholder="Contraseña">
+    <button class="btn-primary" style="width:100%;padding:0.9rem" onclick="handleRegistro()">Crear mi cuenta gratis ✦</button>
+    <p style="text-align:center;margin-top:1rem;margin-bottom:0;font-size:0.8rem;color:var(--text-dim)">¿Ya tienes cuenta? <span style="color:var(--purple-light);cursor:pointer" onclick="closeModal('modalRegistro');openModal('modalLogin')">Inicia sesión</span></p>
+  </div>
+</div>
+
+<!-- MODAL LOGIN -->
+<div class="modal-overlay" id="modalLogin">
+  <div class="modal-box">
+    <button class="modal-close-btn" onclick="closeModal('modalLogin')">✕</button>
+    <div class="section-label" style="margin-bottom:0.5rem">✦ Bienvenido de vuelta</div>
+    <h3>Continúa tu viaje</h3>
+    <p>Accede a tu biblioteca personalizada, tus rachas de lectura y recomendaciones únicas.</p>
+    <input class="modal-input" type="email" placeholder="Tu correo electrónico">
+    <input class="modal-input" type="password" placeholder="Contraseña">
+    <button class="btn-primary" style="width:100%;padding:0.9rem" onclick="handleLogin()">Iniciar sesión ✦</button>
+    <p style="text-align:center;margin-top:1rem;margin-bottom:0;font-size:0.8rem;color:var(--text-dim)">¿No tienes cuenta? <span style="color:var(--purple-light);cursor:pointer" onclick="closeModal('modalLogin');openModal('modalRegistro')">Regístrate gratis</span></p>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav id="navbar">
+  <div class="nav-logo" onclick="scrollToTop()">Story<span>Scape</span></div>
+  <ul class="nav-links">
+    <li><a href="#descubrir">Descubrir</a></li>
+    <li><a href="#companion">Compañero IA</a></li>
+    <li><a href="#viaje">Mi Viaje</a></li>
+    <li><a href="#biblioteca">Biblioteca</a></li>
+    <li><a href="#comunidad">Comunidad</a></li>
+    <li><a href="#faq">FAQ</a></li>
+  </ul>
+  <button class="nav-cta" onclick="openAI()">Pregunta a Nexius IA</button>
+  <div class="nav-mobile-toggle" onclick="openMobileNav()">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-orb hero-orb-1"></div>
+  <div class="hero-orb hero-orb-2"></div>
+  <div class="hero-orb hero-orb-3"></div>
+  <div>
+    <div class="hero-badge"><span class="badge-dot"></span> Impulsado por IA · Universo Literario</div>
+    <h1 class="hero-title">
+      Descubre Tu Próxima<br>
+      <span class="accent">Historia Favorita</span>
+    </h1>
+    <p class="hero-sub">Un universo literario con inteligencia artificial que entiende cómo te sientes y te recomienda libros que amarás de verdad.</p>
+    <div class="hero-buttons">
+      <button class="btn-primary" onclick="navTo('#descubrir')">✦ Explorar Historias</button>
+      <button class="btn-secondary" onclick="openAI()">Preguntar a Nexius IA →</button>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-num" id="stat1">2.4M</div>
+        <div class="hero-stat-label">Libros</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num" id="stat2">580K</div>
+        <div class="hero-stat-label">Lectores</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num" id="stat3">98%</div>
+        <div class="hero-stat-label">Satisfacción</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BOOK STRIP -->
+<div class="book-strip">
+  <div class="book-strip-inner" id="bookStrip"></div>
+</div>
+
+<!-- EMOTION DISCOVERY -->
+<section id="descubrir">
+  <div class="section-wrap">
+    <div class="section-header reveal">
+      <div class="section-label">✦ Descubrimiento por Emociones</div>
+      <h2 class="section-title">¿Cómo te sientes hoy?</h2>
+      <div class="section-divider"></div>
+      <p class="section-sub">Selecciona tu estado de ánimo actual y deja que nuestra IA cree la experiencia de lectura perfecta para ti.</p>
+    </div>
+    <div class="emotion-grid reveal">
+      <div class="emotion-card" style="--card-color:#E8935A;--card-shadow:rgba(232,147,90,0.3);--card-gradient:linear-gradient(135deg,rgba(232,147,90,0.15),transparent)" data-emotion="aventura" onclick="selectEmotion(this)">
+        <span class="emotion-emoji">⚔️</span>
+        <div class="emotion-label">Quiero aventura</div>
+        <div class="emotion-desc">Épicas gestas y viajes emocionantes</div>
+      </div>
+      <div class="emotion-card" style="--card-color:#E86FA8;--card-shadow:rgba(232,111,168,0.3);--card-gradient:linear-gradient(135deg,rgba(232,111,168,0.15),transparent)" data-emotion="romance" onclick="selectEmotion(this)">
+        <span class="emotion-emoji">💫</span>
+        <div class="emotion-label">Quiero romance</div>
+        <div class="emotion-desc">Amor y conexiones que llegan al alma</div>
+      </div>
+      <div class="emotion-card" style="--card-color:#6B9FFF;--card-shadow:rgba(107,159,255,0.3);--card-gradient:linear-gradient(135deg,rgba(107,159,255,0.15),transparent)" data-emotion="misterio" onclick="selectEmotion(this)">
+        <span class="emotion-emoji">🔍</span>
+        <div class="emotion-label">Quiero misterio</div>
+        <div class="emotion-desc">Suspenso, pistas y secretos oscuros</div>
+      </div>
+      <div class="emotion-card" style="--card-color:#C9A84C;--card-shadow:rgba(201,168,76,0.3);--card-gradient:linear-gradient(135deg,rgba(201,168,76,0.15),transparent)" data-emotion="inspiracion" onclick="selectEmotion(this)">
+        <span class="emotion-emoji">🌅</span>
+        <div class="emotion-label">Quiero inspiración</div>
+        <div class="emotion-desc">Historias que elevan y empoderan</div>
+      </div>
+      <div class="emotion-card" style="--card-color:#A07EC8;--card-shadow:rgba(160,126,200,0.3);--card-gradient:linear-gradient(135deg,rgba(160,126,200,0.15),transparent)" data-emotion="fantasia" onclick="selectEmotion(this)">
+        <span class="emotion-emoji">🧙</span>
+        <div class="emotion-label">Quiero fantasía</div>
+        <div class="emotion-desc">Magia, mundos y mitos maravillosos</div>
+      </div>
+      <div class="emotion-card" style="--card-color:#4ade80;--card-shadow:rgba(74,222,128,0.25);--card-gradient:linear-gradient(135deg,rgba(74,222,128,0.1),transparent)" data-emotion="crecimiento" onclick="selectEmotion(this)">
+        <span class="emotion-emoji">🌱</span>
+        <div class="emotion-label">Quiero crecer</div>
+        <div class="emotion-desc">Sabiduría y transformación personal</div>
+      </div>
+    </div>
+    <div class="book-recommendations" id="bookRecs">
+      <div class="rec-title" id="recTitle">Curado especialmente para ti ✦</div>
+      <div class="book-cards-row" id="bookCardsRow"></div>
+    </div>
+  </div>
+</section>
+
+<!-- AI COMPANION -->
+<section id="companion" style="background:linear-gradient(180deg,transparent,rgba(59,111,212,0.04),transparent)">
+  <div class="section-wrap">
+    <div class="ai-companion-wrap">
+      <div class="reveal">
+        <div class="section-label">✦ Compañero de Lectura IA</div>
+        <h2 class="section-title">Tu guía inteligente de lectura</h2>
+        <div class="section-divider"></div>
+        <p class="section-sub">BookVerse IA camina junto a ti en cada página, ofreciendo comprensión y perspectiva cuando más lo necesitas.</p>
+        <div class="ai-features">
+          <div class="ai-feature" onclick="event.stopPropagation();openAI()">
+            <div class="ai-feature-icon">📖</div>
+            <div>
+              <div class="ai-feature-title">Explicaciones de capítulos</div>
+              <div class="ai-feature-desc">Análisis profundo y contextual de pasajes complejos, temas y arcos narrativos.</div>
+            </div>
+          </div>
+          <div class="ai-feature" onclick="event.stopPropagation();openAI()">
+            <div class="ai-feature-icon">🎭</div>
+            <div>
+              <div class="ai-feature-title">Seguimiento de personajes</div>
+              <div class="ai-feature-desc">Mantén cada personaje, relación y motivación organizada y accesible.</div>
+            </div>
+          </div>
+          <div class="ai-feature" onclick="event.stopPropagation();openAI()">
+            <div class="ai-feature-icon">🛡️</div>
+            <div>
+              <div class="ai-feature-title">Resúmenes sin spoilers</div>
+              <div class="ai-feature-desc">Ponte al día sin arruinar la magia — siempre adaptado a tu posición de lectura.</div>
+            </div>
+          </div>
+          <div class="ai-feature" onclick="event.stopPropagation();openAI()">
+            <div class="ai-feature-icon">🧭</div>
+            <div>
+              <div class="ai-feature-title">Guía de lectura</div>
+              <div class="ai-feature-desc">Recomendaciones personalizadas de ritmo, enfoque y próximos libros.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="ai-visual reveal reveal-delay-2">
+        <div class="ai-orb"></div>
+        <div class="ai-floating-chips">
+          <div class="ai-chip">✦ Analizando temas...</div>
+          <div class="ai-chip">📚 Capítulo 12 listo</div>
+          <div class="ai-chip">🎭 3 personajes clave</div>
+          <div class="ai-chip">⭐ 98% compatibilidad</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LITERARY JOURNEY -->
+<section id="viaje" style="background:linear-gradient(180deg,transparent,rgba(123,94,167,0.05),transparent)">
+  <div class="section-wrap">
+    <div class="section-header reveal">
+      <div class="section-label">✦ Sistema de Viaje Literario</div>
+      <h2 class="section-title">Sube de nivel como lector</h2>
+      <div class="section-divider"></div>
+      <p class="section-sub">Avanza por hitos de lectura como el viaje del héroe, desbloqueando nuevos mundos mientras creces.</p>
+    </div>
+    <div class="journey-path reveal">
+      <div class="journey-line"></div>
+      <div class="journey-steps">
+        <div class="journey-step active" style="--step-color:#6B9FFF;--step-shadow:rgba(107,159,255,0.3);--step-bg:rgba(107,159,255,0.1)" onclick="selectJourneyStep(this)">
+          <div class="journey-step-icon">📗</div>
+          <div class="journey-step-name">Lector Novato</div>
+          <div class="journey-step-label">Actual</div>
+          <div class="journey-step-books">1–10 libros</div>
+        </div>
+        <div class="journey-step" style="--step-color:#A07EC8;--step-shadow:rgba(160,126,200,0.3);--step-bg:rgba(160,126,200,0.1)" onclick="selectJourneyStep(this)">
+          <div class="journey-step-icon">📘</div>
+          <div class="journey-step-name">Intermedio</div>
+          <div class="journey-step-label">Faltan 11 libros</div>
+          <div class="journey-step-books">11–40 libros</div>
+        </div>
+        <div class="journey-step" style="--step-color:#C9A84C;--step-shadow:rgba(201,168,76,0.3);--step-bg:rgba(201,168,76,0.1)" onclick="selectJourneyStep(this)">
+          <div class="journey-step-icon">📙</div>
+          <div class="journey-step-name">Avanzado</div>
+          <div class="journey-step-label">Faltan 41 libros</div>
+          <div class="journey-step-books">41–100 libros</div>
+        </div>
+        <div class="journey-step" style="--step-color:#E86FA8;--step-shadow:rgba(232,111,168,0.3);--step-bg:rgba(232,111,168,0.1)" onclick="selectJourneyStep(this)">
+          <div class="journey-step-icon">📕</div>
+          <div class="journey-step-name">Gran Escriba</div>
+          <div class="journey-step-label">Faltan 101 libros</div>
+          <div class="journey-step-books">100+ libros</div>
+        </div>
+      </div>
+    </div>
+    <div class="journey-progress reveal reveal-delay-2">
+      <div>
+        <div class="progress-label">Progreso hacia Lector Intermedio</div>
+        <div class="progress-bar-wrap">
+          <div class="progress-bar-fill" id="progressBar"></div>
+        </div>
+        <div style="font-size:0.78rem;color:var(--text-dim);margin-top:0.5rem">7 de 11 libros completados</div>
+      </div>
+      <div>
+        <div class="progress-xp">1.240</div>
+        <div class="progress-xp-label">XP ganados</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PERSONAL LIBRARY -->
+<section id="biblioteca">
+  <div class="section-wrap">
+    <div class="section-header reveal">
+      <div class="section-label">✦ Biblioteca Personalizada</div>
+      <h2 class="section-title">Tu universo lector</h2>
+      <div class="section-divider"></div>
+      <p class="section-sub">Registra tu recorrido, celebra tus rachas y descubre patrones en tu vida lectora.</p>
+    </div>
+    <div class="library-grid">
+      <div class="library-card reveal" onclick="showLibraryDetail('libros')">
+        <div class="library-card-header">
+          <div class="library-icon" style="--lib-icon-bg:rgba(107,159,255,0.15);--lib-icon-border:rgba(107,159,255,0.3)">📚</div>
+          <div class="library-card-title">Libros Leídos</div>
+        </div>
+        <div class="library-card-value" style="--lib-color:#6B9FFF">47</div>
+        <div class="library-card-sub">Libros completados este año</div>
+        <div style="margin-top:0.75rem;height:4px;border-radius:2px;background:rgba(255,255,255,0.05);overflow:hidden">
+          <div style="height:100%;width:78%;background:linear-gradient(90deg,var(--blue),var(--purple));border-radius:2px"></div>
+        </div>
+        <div style="font-size:0.75rem;color:var(--text-dim);margin-top:0.4rem">78% de la meta anual</div>
+      </div>
+      <div class="library-card reveal reveal-delay-1" onclick="showLibraryDetail('racha')">
+        <div class="library-card-header">
+          <div class="library-icon" style="--lib-icon-bg:rgba(232,147,90,0.15);--lib-icon-border:rgba(232,147,90,0.3)">🔥</div>
+          <div class="library-card-title">Racha de Lectura</div>
+        </div>
+        <div class="library-card-value" style="--lib-color:#E8935A">23</div>
+        <div class="library-card-sub">Días consecutivos leyendo</div>
+        <div class="streak-flames" id="streakFlames"></div>
+      </div>
+      <div class="library-card reveal reveal-delay-2" onclick="showLibraryDetail('generos')">
+        <div class="library-card-header">
+          <div class="library-icon" style="--lib-icon-bg:rgba(160,126,200,0.15);--lib-icon-border:rgba(160,126,200,0.3)">💜</div>
+          <div class="library-card-title">Géneros Favoritos</div>
+        </div>
+        <div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem">Basado en tu historial</div>
+        <div class="genre-pills">
+          <span class="genre-pill">Fantasía</span>
+          <span class="genre-pill">Misterio</span>
+          <span class="genre-pill">Ciencia Ficción</span>
+          <span class="genre-pill">Biografía</span>
+          <span class="genre-pill">Filosofía</span>
+          <span class="genre-pill">Autoayuda</span>
+        </div>
+      </div>
+      <div class="library-card reveal reveal-delay-3" onclick="showLibraryDetail('metas')">
+        <div class="library-card-header">
+          <div class="library-icon" style="--lib-icon-bg:rgba(201,168,76,0.15);--lib-icon-border:rgba(201,168,76,0.3)">🎯</div>
+          <div class="library-card-title">Metas de Lectura</div>
+        </div>
+        <div class="goal-bar-wrap">
+          <div class="goal-bar-label"><span>Meta mensual</span><span style="color:var(--gold)">4/5 libros</span></div>
+          <div class="progress-bar-wrap"><div style="height:100%;width:80%;background:linear-gradient(90deg,var(--gold),#E8C97A);border-radius:4px"></div></div>
+        </div>
+        <div class="goal-bar-wrap" style="margin-top:0.75rem">
+          <div class="goal-bar-label"><span>Páginas hoy</span><span style="color:var(--purple-light)">38/50 págs.</span></div>
+          <div class="progress-bar-wrap"><div style="height:100%;width:76%;background:linear-gradient(90deg,var(--purple),var(--blue));border-radius:4px"></div></div>
+        </div>
+        <div style="font-size:0.78rem;color:var(--gold);margin-top:0.75rem">⚡ ¡Solo 12 páginas para tu meta!</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMMUNITY -->
+<section id="comunidad" style="background:linear-gradient(180deg,transparent,rgba(123,94,167,0.04),transparent)">
+  <div class="section-wrap">
+    <div class="section-header reveal">
+      <div class="section-label">✦ Comunidad</div>
+      <h2 class="section-title">Lectores como tú</h2>
+      <div class="section-divider"></div>
+      <p class="section-sub">Conéctate con almas afines que comparten tus pasiones literarias y descubre libros a través de sus ojos.</p>
+    </div>
+    <div class="community-grid" id="communityGrid"></div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section id="estadisticas">
+  <div class="section-wrap">
+    <div class="section-header reveal">
+      <div class="section-label">✦ Panel de Estadísticas</div>
+      <h2 class="section-title">Los números hablan</h2>
+      <div class="section-divider"></div>
+    </div>
+    <div class="stats-wrap">
+      <div class="stat-card reveal" style="--stat-color:#6B9FFF;--stat-glow:rgba(107,159,255,0.12)">
+        <span class="stat-icon">📚</span>
+        <div class="stat-num">2.4M</div>
+        <div class="stat-label">Libros Descubiertos</div>
+        <div class="stat-trend">↑ 18% este mes</div>
+      </div>
+      <div class="stat-card reveal reveal-delay-1" style="--stat-color:#C9A84C;--stat-glow:rgba(201,168,76,0.12)">
+        <span class="stat-icon">⏱️</span>
+        <div class="stat-num">4.2M</div>
+        <div class="stat-label">Horas de Lectura</div>
+        <div class="stat-trend">↑ 34% este mes</div>
+      </div>
+      <div class="stat-card reveal reveal-delay-2" style="--stat-color:#E8935A;--stat-glow:rgba(232,147,90,0.12)">
+        <span class="stat-icon">🔥</span>
+        <div class="stat-num">89K</div>
+        <div class="stat-label">Rachas Activas</div>
+        <div class="stat-trend">↑ 22% esta semana</div>
+      </div>
+      <div class="stat-card reveal reveal-delay-3" style="--stat-color:#A07EC8;--stat-glow:rgba(160,126,200,0.12)">
+        <span class="stat-icon">💫</span>
+        <div class="stat-num">580K</div>
+        <div class="stat-label">Lectores Activos</div>
+        <div class="stat-trend">↑ 41% este trimestre</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonios" style="background:linear-gradient(180deg,transparent,rgba(201,168,76,0.04),transparent)">
+  <div class="section-wrap">
+    <div class="section-header reveal">
+      <div class="section-label">✦ Lo que Dicen los Lectores</div>
+      <h2 class="section-title">Historias de transformación</h2>
+      <div class="section-divider"></div>
+    </div>
+    <div class="testimonials-grid" id="testimonialsGrid"></div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="section-wrap">
+    <div class="section-header reveal">
+      <div class="section-label">✦ Preguntas Frecuentes</div>
+      <h2 class="section-title">¿Tienes dudas?</h2>
+      <div class="section-divider"></div>
+    </div>
+    <div class="faq-list reveal" id="faqList"></div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section reveal">
+  <div class="cta-wrap">
+    <div class="section-label" style="text-align:center;margin-bottom:1rem">✦ Comienza Tu Viaje</div>
+    <h2 class="cta-title">Tu próxima gran historia<br><span style="font-style:italic;background:linear-gradient(135deg,var(--purple-light),var(--gold-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">te está esperando</span></h2>
+    <p class="cta-sub">Únete a medio millón de lectores que descubrieron la magia de la exploración literaria con IA.</p>
+    <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
+      <button class="btn-primary" style="font-size:1rem;padding:1rem 2.5rem" onclick="openModal('modalRegistro')">Explorar Gratis ✦</button>
+      <button class="btn-secondary" onclick="openAI()">Hablar con Nexius IA</button>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div>
+      <div class="nav-logo" style="font-size:1.5rem">Story<span style="font-family:'Cormorant Garamond',serif;font-weight:300;font-style:italic">Scape</span></div>
+      <p class="footer-brand-desc">Un universo literario con IA donde cada lector encuentra su historia perfecta. Impulsado por emociones, guiado por inteligencia.</p>
+      <div style="display:flex;gap:0.5rem;margin-top:1.5rem;flex-wrap:wrap">
+        <div style="padding:0.35rem 0.85rem;border-radius:50px;border:1px solid rgba(59,111,212,0.3);background:rgba(59,111,212,0.08);font-size:0.7rem;color:var(--blue-light)">Azure AI Ready</div>
+        <div style="padding:0.35rem 0.85rem;border-radius:50px;border:1px solid rgba(201,168,76,0.3);background:rgba(201,168,76,0.08);font-size:0.7rem;color:var(--gold-light)">2.4M+ Libros</div>
+      </div>
+    </div>
+    <div>
+      <div class="footer-col-title">Explorar</div>
+      <div class="footer-links">
+        <a href="#descubrir">Descubrir Libros</a>
+        <a href="#companion">Compañero IA</a>
+        <a href="#viaje">Viaje Literario</a>
+        <a href="#biblioteca">Mi Biblioteca</a>
+        <a href="#comunidad">Comunidad</a>
+      </div>
+    </div>
+    <div>
+      <div class="footer-col-title">Plataforma</div>
+      <div class="footer-links">
+        <a href="#" onclick="showToast('Sección en construcción 🚧');return false">Cómo Funciona</a>
+        <a href="#" onclick="openModal('modalRegistro');return false">Precios</a>
+        <a href="#" onclick="showToast('API próximamente disponible ⚡');return false">Acceso API</a>
+        <a href="#" onclick="showToast('Programa educativo próximamente 📚');return false">Para Colegios</a>
+        <a href="#" onclick="showToast('Contacta a nuestro equipo 💌');return false">Empresas</a>
+      </div>
+    </div>
+    <div>
+      <div class="footer-col-title">Compañía</div>
+      <div class="footer-links">
+        <a href="#" onclick="showToast('Conócenos próximamente ✦');return false">Nosotros</a>
+        <a href="#" onclick="showToast('Blog en construcción 📝');return false">Blog</a>
+        <a href="#" onclick="showToast('¡Estamos contratando! 🚀');return false">Carreras</a>
+        <a href="#" onclick="showToast('Política de privacidad 🔒');return false">Privacidad</a>
+        <a href="#" onclick="showToast('Términos de uso 📋');return false">Términos</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-copy">© 2025 StoryScape · Todos los derechos reservados · Impulsado por BookVerse IA</div>
+    <div class="footer-socials">
+      <button class="social-btn" onclick="showToast('Síguenos en X 𝕏')">𝕏</button>
+      <button class="social-btn" onclick="showToast('LinkedIn próximamente 💼')">in</button>
+      <button class="social-btn" onclick="showToast('Facebook próximamente 📘')">f</button>
+      <button class="social-btn" onclick="showToast('Instagram próximamente 📸')">✿</button>
+    </div>
+  </div>
+</footer>
+
+<!-- FLOATING AI -->
+<div class="ai-float">
+  <div class="ai-float-bubble" id="aiBubble">
+    <strong>Nexius IA</strong>
+    ¡Pregúntame cualquier cosa sobre libros, autores o tu viaje lector!
+  </div>
+  <button class="ai-float-btn" onclick="openAI()" aria-label="Abrir Nexius IA">
+    ✦
+    <div class="notif" id="aiNotif">1</div>
+  </button>
+</div>
+
+<!-- AI MODAL — Nexius IA (Azure Bot Framework) -->
+<div class="ai-modal" id="aiModal" style="display:none;flex-direction:column">
+  <div class="ai-modal-header">
+    <div class="ai-modal-avatar">✦</div>
+    <div>
+      <div class="ai-modal-name">Nexius IA</div>
+      <div class="ai-modal-status"><span class="status-dot-green"></span> Lista para explorar</div>
+    </div>
+    <button class="ai-modal-close" onclick="closeAI()" aria-label="Cerrar chat">✕</button>
+  </div>
+  <iframe
+    id="nexiusIframe"
+    src="https://webchat.botframework.com/embed/storyscape-bot?s=6qhNXEz03josC0aSh6I1bIbktIebuGcxXWAKI7sl8QVat7EQQww2JQQJ99CEACZoyfiAArohAAABAZBS3xgp.CoVHKygqbOdUw9P5nTE8MsgMcDqskSJsJ3Io31qRl7KcMtRRnA5uJQQJ99CEACZoyfiAArohAAABAZBS2HL3"
+    style="width:100%;height:430px;border:none;display:block;background:#0F0C1A"
+    allow="microphone"
+    title="Nexius IA — StoryScape">
+  </iframe>
+  <div class="azure-badge">⚡ Powered by Azure AI · Nexius IA</div>
+</div>
+
+<script>
+// ── ESTRELLAS ──
+const starsEl = document.getElementById('stars');
+for (let i = 0; i < 120; i++) {
+  const s = document.createElement('span');
+  const size = Math.random() * 2.5 + 0.5;
+  s.style.cssText = `width:${size}px;height:${size}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--dur:${Math.random()*4+2}s;--delay:${Math.random()*5}s;--max-op:${Math.random()*0.7+0.2}`;
+  starsEl.appendChild(s);
+}
+
+// ── NAV SCROLL ──
+window.addEventListener('scroll', () => {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 80);
+});
+
+// ── SCROLL REVEAL ──
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+// ── NAVEGACIÓN ──
+function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+
+function navTo(hash) {
+  const el = document.querySelector(hash);
+  if (el) el.scrollIntoView({ behavior: 'smooth' });
+}
+
+// ── MOBILE NAV ──
+function openMobileNav() { document.getElementById('mobileNav').classList.add('open'); }
+function closeMobileNav() { document.getElementById('mobileNav').classList.remove('open'); }
+
+// ── TOAST ──
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── MODALES ──
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('open'); });
+});
+
+function handleRegistro() {
+  closeModal('modalRegistro');
+  showToast('¡Bienvenido/a a StoryScape! 🎉 Cuenta creada con éxito.');
+}
+function handleLogin() {
+  closeModal('modalLogin');
+  showToast('¡Bienvenido/a de vuelta! ✦ Sesión iniciada.');
+}
+
+// ── BOOK STRIP ──
+const bookTitles = [
+  ['⚔️','El Nombre del Viento'],['💫','Orgullo y Prejuicio'],['🔍','El Código Da Vinci'],
+  ['🧙','El Señor de los Anillos'],['🌱','Hábitos Atómicos'],['📚','Dune'],
+  ['🌅','El Alquimista'],['🔮','La Sombra del Viento'],['🎭','Cien Años de Soledad'],
+  ['🚀','El Proyecto Hail Mary'],['🌊','Don Quijote'],['🦋','Ficciones'],
+  ['🏛️','Sapiens'],['❄️','El Circo de la Noche'],['🌹','Rayuela'],
+  ['⚗️','Pensar Rápido, Pensar Despacio'],['🗡️','Sombra y Hueso'],['📝','Meditaciones']
+];
+const strip = document.getElementById('bookStrip');
+[...bookTitles, ...bookTitles].forEach(([icon, title]) => {
+  const chip = document.createElement('div');
+  chip.className = 'book-chip';
+  chip.innerHTML = `<span>${icon}</span>${title}`;
+  strip.appendChild(chip);
+});
+
+// ── STREAK FLAMES ──
+const flamesWrap = document.getElementById('streakFlames');
+for (let i = 0; i < 9; i++) {
+  const f = document.createElement('span');
+  f.className = 'streak-flame' + (i < 7 ? ' active' : '');
+  f.textContent = '🔥';
+  flamesWrap.appendChild(f);
+}
+
+// ── EMOTION BOOKS ──
+const emotionBooks = {
+  aventura: {
+    titulo: 'Tu aventura te espera ⚔️',
+    libros: [
+      { titulo: 'Dune', autor: 'Frank Herbert', rating: '★★★★★', color: '#6B4C11', acento: '#C9A84C' },
+      { titulo: 'El Hobbit', autor: 'J.R.R. Tolkien', rating: '★★★★★', color: '#1A4C2A', acento: '#4ade80' },
+      { titulo: 'La Isla del Tesoro', autor: 'R.L. Stevenson', rating: '★★★★☆', color: '#3B2A0A', acento: '#E8935A' },
+      { titulo: 'En el Camino', autor: 'Jack Kerouac', rating: '★★★★☆', color: '#1A2C4A', acento: '#6B9FFF' },
+    ]
+  },
+  romance: {
+    titulo: 'Historias del corazón 💫',
+    libros: [
+      { titulo: 'Orgullo y Prejuicio', autor: 'Jane Austen', rating: '★★★★★', color: '#3A1525', acento: '#E86FA8' },
+      { titulo: 'El Cuaderno', autor: 'Nicholas Sparks', rating: '★★★★☆', color: '#1A1535', acento: '#A07EC8' },
+      { titulo: 'Outlander', autor: 'Diana Gabaldon', rating: '★★★★★', color: '#2A1A0A', acento: '#C9A84C' },
+      { titulo: 'Antes de Ti', autor: 'Jojo Moyes', rating: '★★★★☆', color: '#1A2A1A', acento: '#4ade80' },
+    ]
+  },
+  misterio: {
+    titulo: 'Secretos y sombras 🔍',
+    libros: [
+      { titulo: 'La Sombra del Viento', autor: 'Carlos Ruiz Zafón', rating: '★★★★★', color: '#0A0A2A', acento: '#6B9FFF' },
+      { titulo: 'El Código Da Vinci', autor: 'Dan Brown', rating: '★★★★☆', color: '#1A0A0A', acento: '#E86FA8' },
+      { titulo: 'Y No Quedó Ninguno', autor: 'Agatha Christie', rating: '★★★★★', color: '#0A1A0A', acento: '#4ade80' },
+      { titulo: 'Rebecca', autor: 'Daphne du Maurier', rating: '★★★★★', color: '#1A1A0A', acento: '#C9A84C' },
+    ]
+  },
+  inspiracion: {
+    titulo: 'Luz para tu camino 🌅',
+    libros: [
+      { titulo: 'El Hombre en Busca de Sentido', autor: 'Viktor Frankl', rating: '★★★★★', color: '#2A1A0A', acento: '#C9A84C' },
+      { titulo: 'El Alquimista', autor: 'Paulo Coelho', rating: '★★★★★', color: '#0A1A2A', acento: '#6B9FFF' },
+      { titulo: 'Una Vida con Propósito', autor: 'Rick Warren', rating: '★★★★☆', color: '#1A0A2A', acento: '#A07EC8' },
+      { titulo: 'Hábitos Atómicos', autor: 'James Clear', rating: '★★★★★', color: '#0A1A0A', acento: '#4ade80' },
+    ]
+  },
+  fantasia: {
+    titulo: 'Mundos más allá del mundo 🧙',
+    libros: [
+      { titulo: 'El Nombre del Viento', autor: 'Patrick Rothfuss', rating: '★★★★★', color: '#1A0A2A', acento: '#A07EC8' },
+      { titulo: 'El Señor de los Anillos', autor: 'J.R.R. Tolkien', rating: '★★★★★', color: '#0A0A1A', acento: '#6B9FFF' },
+      { titulo: 'El Circo de la Noche', autor: 'Erin Morgenstern', rating: '★★★★★', color: '#1A1A1A', acento: '#E8C97A' },
+      { titulo: 'Sombra y Hueso', autor: 'Leigh Bardugo', rating: '★★★★☆', color: '#2A0A0A', acento: '#E86FA8' },
+    ]
+  },
+  crecimiento: {
+    titulo: 'Semillas de transformación 🌱',
+    libros: [
+      { titulo: 'Hábitos Atómicos', autor: 'James Clear', rating: '★★★★★', color: '#0A1A0A', acento: '#4ade80' },
+      { titulo: 'Pensar Rápido, Pensar Despacio', autor: 'D. Kahneman', rating: '★★★★★', color: '#0A0A1A', acento: '#6B9FFF' },
+      { titulo: 'Sapiens', autor: 'Yuval Noah Harari', rating: '★★★★★', color: '#1A0A0A', acento: '#E8935A' },
+      { titulo: 'Meditaciones', autor: 'Marco Aurelio', rating: '★★★★★', color: '#1A1A0A', acento: '#C9A84C' },
+    ]
+  }
+};
+
+function selectEmotion(card) {
+  document.querySelectorAll('.emotion-card').forEach(c => c.classList.remove('active'));
+  card.classList.add('active');
+  const data = emotionBooks[card.dataset.emotion];
+  if (!data) return;
+  document.getElementById('recTitle').textContent = data.titulo;
+  document.getElementById('bookCardsRow').innerHTML = data.libros.map(b => `
+    <div class="book-card" onclick="showToast('📖 ${b.titulo} — añadido a tu lista de deseos ✦')">
+      <div class="book-cover" style="background:${b.color}">
+        <div class="book-cover-bg" style="background:linear-gradient(160deg,${b.acento}33,${b.color})"></div>
+        <div style="position:absolute;inset:0;background:linear-gradient(to bottom,transparent 30%,rgba(0,0,0,0.85))"></div>
+        <div class="book-cover-title">${b.titulo}</div>
+      </div>
+      <div class="book-info">
+        <div class="book-author">${b.autor}</div>
+        <div class="book-rating">${b.rating}</div>
+      </div>
+    </div>
+  `).join('');
+  const rec = document.getElementById('bookRecs');
+  rec.classList.add('visible');
+  setTimeout(() => rec.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
+}
+
+// ── JOURNEY STEPS ──
+function selectJourneyStep(step) {
+  document.querySelectorAll('.journey-step').forEach(s => s.classList.remove('active'));
+  step.classList.add('active');
+  const name = step.querySelector('.journey-step-name').textContent;
+  showToast('✦ Seleccionaste: ' + name);
+}
+
+// ── PROGRESS BAR ──
+const progObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      setTimeout(() => { document.getElementById('progressBar').style.width = '63%'; }, 300);
+      progObs.disconnect();
+    }
+  });
+}, { threshold: 0.3 });
+const progEl = document.getElementById('progressBar');
+if (progEl && progEl.closest('.journey-progress')) {
+  progObs.observe(progEl.closest('.journey-progress'));
+}
+
+// ── LIBRARY DETAIL ──
+function showLibraryDetail(tipo) {
+  const msgs = {
+    libros: '📚 Tienes 47 libros leídos este año. ¡Vas excelente!',
+    racha: '🔥 Llevas 23 días consecutivos leyendo. ¡No la rompas!',
+    generos: '💜 Tu género más leído: Fantasía (38%)',
+    metas: '🎯 ¡Estás a 12 páginas de tu meta diaria!'
+  };
+  showToast(msgs[tipo] || '✦ Cargando detalles...');
+}
+
+// ── COMMUNITY ──
+const comunidad = [
+  { ini:'AL', nombre:'Ana López', match:'96% compatible', bg:'rgba(160,126,200,0.2)', borde:'#A07EC8', color:'#C9B8E8', generos:['Fantasía','Misterio','Sci-Fi'], frase:'"Los libros son los amigos más silenciosos y constantes."' },
+  { ini:'MR', nombre:'Marco Ruiz', match:'93% compatible', bg:'rgba(107,159,255,0.2)', borde:'#6B9FFF', color:'#A0C4FF', generos:['Filosofía','Historia','Ficción'], frase:'"Un lector vive mil vidas antes de morir."' },
+  { ini:'ZM', nombre:'Zoé Morales', match:'91% compatible', bg:'rgba(232,111,168,0.2)', borde:'#E86FA8', color:'#F0A0C8', generos:['Romance','Thriller','Poesía'], frase:'"Leer es al alma lo que el ejercicio al cuerpo."' },
+  { ini:'JV', nombre:'Juan Vega', match:'89% compatible', bg:'rgba(201,168,76,0.2)', borde:'#C9A84C', color:'#E8C97A', generos:['Sci-Fi','Fantasía','Terror'], frase:'"No todos los que vagan están perdidos."' },
+  { ini:'SN', nombre:'Sofía Nava', match:'88% compatible', bg:'rgba(74,222,128,0.2)', borde:'#4ade80', color:'#80EDB0', generos:['Autoayuda','Biografía','Ciencia'], frase:'"Cuanto más leas, más cosas sabrás."' },
+  { ini:'DT', nombre:'Diego Torres', match:'85% compatible', bg:'rgba(232,147,90,0.2)', borde:'#E8935A', color:'#F0B080', generos:['Aventura','Historia','Poesía'], frase:'"Leer es viajar sin moverse del lugar."' },
+];
+const communityGrid = document.getElementById('communityGrid');
+comunidad.forEach((u, i) => {
+  const card = document.createElement('div');
+  card.className = 'community-card reveal' + (i > 0 ? ` reveal-delay-${Math.min(i,4)}` : '');
+  card.innerHTML = `
+    <div class="user-header">
+      <div class="avatar" style="background:${u.bg};border-color:${u.borde};color:${u.color}">${u.ini}</div>
+      <div>
+        <div class="user-name">${u.nombre}</div>
+        <div class="user-match">✦ ${u.match}</div>
+      </div>
+    </div>
+    <div class="user-genres">${u.generos.map(g=>`<span class="mini-pill">${g}</span>`).join('')}</div>
+    <div class="user-quote">${u.frase}</div>
+    <button class="connect-btn" onclick="connectUser(this,'${u.nombre}')">Conectar con ${u.nombre.split(' ')[0]}</button>
+  `;
+  communityGrid.appendChild(card);
+  io.observe(card);
+});
+
+function connectUser(btn, nombre) {
+  if (btn.classList.contains('connected')) {
+    showToast('Ya estás conectado/a con ' + nombre + ' 💜');
+    return;
+  }
+  btn.classList.add('connected');
+  btn.textContent = '✓ Conectado/a';
+  showToast('¡Conectado/a con ' + nombre + '! 🎉');
+}
+
+// ── TESTIMONIALS ──
+const testimonios = [
+  { texto: 'StoryScape transformó completamente mi relación con los libros. Las recomendaciones de la IA son casi espeluznantemente perfectas — encontró libros que ni sabía que necesitaba.', nombre: 'Lucía M.', rol: 'Profesora de Literatura', estrellas: '★★★★★', ini: 'LM', bg: 'rgba(160,126,200,0.2)', borde: '#A07EC8', color: '#C9B8E8' },
+  { texto: 'Antes leía quizás un libro al año. Después de descubrir StoryScape y su sistema de viaje, he leído 23 libros en seis meses. La gamificación es absolutamente genial.', nombre: 'Rafael C.', rol: 'Ingeniero de Software', estrellas: '★★★★★', ini: 'RC', bg: 'rgba(107,159,255,0.2)', borde: '#6B9FFF', color: '#A0C4FF' },
+  { texto: 'El compañero IA BookVerse es como tener un amigo literario brillante disponible a las 3am cuando estoy perdida en un capítulo complejo. Pura magia.', nombre: 'Amara O.', rol: 'Estudiante de Posgrado', estrellas: '★★★★★', ini: 'AO', bg: 'rgba(232,111,168,0.2)', borde: '#E86FA8', color: '#F0A0C8' },
+];
+const tGrid = document.getElementById('testimonialsGrid');
+testimonios.forEach((t, i) => {
+  const card = document.createElement('div');
+  card.className = `testimonial-card reveal${i>0?' reveal-delay-'+i:''}`;
+  card.innerHTML = `
+    <div class="quote-mark">"</div>
+    <p class="testimonial-text">${t.texto}</p>
+    <div class="testimonial-author">
+      <div class="avatar" style="background:${t.bg};border-color:${t.borde};color:${t.color};width:38px;height:38px;font-size:0.8rem">${t.ini}</div>
+      <div><div class="author-name">${t.nombre}</div><div class="author-role">${t.rol}</div></div>
+      <div style="margin-left:auto"><div class="author-stars">${t.estrellas}</div></div>
+    </div>
+  `;
+  tGrid.appendChild(card);
+  io.observe(card);
+});
+
+// ── FAQ ──
+const preguntas = [
+  { p: '¿Cómo funciona la recomendación de libros con IA?', r: 'BookVerse IA analiza tu estado emocional, historial de lectura, géneros preferidos y rasgos de personalidad para crear recomendaciones hiperpersonalizadas. Mejora con cada libro que lees y calificas.' },
+  { p: '¿StoryScape es gratuito?', r: 'StoryScape ofrece un nivel gratuito generoso con acceso a las funciones principales de descubrimiento. Los suscriptores premium desbloquean conversaciones ilimitadas con el compañero IA, análisis avanzados y características exclusivas de la comunidad.' },
+  { p: '¿Qué es el Sistema de Viaje Literario?', r: 'El Sistema de Viaje Literario gamifica tu progresión como lector. A medida que lees libros e interactúas con la plataforma, ganas XP y desbloqueas nuevos niveles — desde Lector Novato hasta Gran Escriba.' },
+  { p: '¿Puedo sincronizar mi progreso desde otras aplicaciones?', r: 'Sí. StoryScape se integra con Goodreads, Kindle, Apple Books y Google Play Books para importar tu historial de lectura existente y continuar tu viaje sin interrupciones.' },
+  { p: '¿Cómo funciona la integración con Azure AI?', r: 'StoryScape está diseñado para integrarse con Azure AI a nivel empresarial, habilitando IA conversacional en tiempo real, procesamiento del lenguaje natural para análisis de libros e infraestructura escalable de recomendaciones.' },
+  { p: '¿Mis datos de lectura son privados?', r: 'Absolutamente. Tus hábitos de lectura, preferencias y datos personales están completamente cifrados y nunca se comparten ni se venden. Tienes control total y puedes exportar o eliminar tus datos en cualquier momento.' },
+];
+const faqList = document.getElementById('faqList');
+preguntas.forEach(f => {
+  const item = document.createElement('div');
+  item.className = 'faq-item';
+  item.innerHTML = `
+    <div class="faq-question" onclick="toggleFaq(this)">
+      <span>${f.p}</span>
+      <div class="faq-chevron">▾</div>
+    </div>
+    <div class="faq-answer"><div class="faq-answer-inner">${f.r}</div></div>
+  `;
+  faqList.appendChild(item);
+});
+
+function toggleFaq(el) {
+  const item = el.parentElement;
+  const wasOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+  if (!wasOpen) item.classList.add('open');
+}
+
+// ── NEXIUS IA MODAL ──
+setTimeout(() => {
+  const bubble = document.getElementById('aiBubble');
+  bubble.classList.add('visible');
+  setTimeout(() => bubble.classList.remove('visible'), 5000);
+}, 2500);
+
+function openAI() {
+  const modal = document.getElementById('aiModal');
+  modal.style.display = 'flex';
+  requestAnimationFrame(() => modal.classList.add('visible'));
+  document.getElementById('aiBubble').classList.remove('visible');
+  const notif = document.getElementById('aiNotif');
+  if (notif) notif.style.display = 'none';
+}
+
+function closeAI() {
+  const modal = document.getElementById('aiModal');
+  modal.classList.remove('visible');
+  setTimeout(() => { modal.style.display = 'none'; }, 300);
+}
+
+// Cerrar al hacer clic fuera del modal
+document.addEventListener('click', (e) => {
+  const modal = document.getElementById('aiModal');
+  const floatBtn = document.querySelector('.ai-float-btn');
+  const floatBubble = document.getElementById('aiBubble');
+  if (modal.classList.contains('visible') &&
+      !modal.contains(e.target) &&
+      !floatBtn.contains(e.target) &&
+      !floatBubble.contains(e.target) &&
+      !e.target.closest('.ai-feature')) {
+    closeAI();
+  }
+});
+
+// Las features del companion ahora abren el modal
+function openAIWithMsg(msg) { openAI(); }
+
+const respuestasIA = [
+  '¡Excelente elección! Basándome en tu estado de ánimo, te recomiendo comenzar con El Nombre del Viento de Patrick Rothfuss — sistema de magia épico y personajes inolvidables. ✦',
+  'Estoy analizando tu perfil lector... Pareces inclinarte hacia narrativas emocionalmente ricas. ¿Has explorado La Sombra del Viento de Carlos Ruiz Zafón? Es magia literaria pura.',
+  'Para el crecimiento personal siempre sugiero Meditaciones de Marco Aurelio junto con Hábitos Atómicos. La combinación es transformadora.',
+  '¡Interesante! Tu gusto sugiere que eres un lector profundamente empático — los libros con dilemas morales complejos resonarán mucho contigo.',
+  '¡Puedo generarte un mapa de lectura completo! Solo dime cuánto tiempo tienes por semana y tus géneros preferidos. ✦',
+  '¡Qué libro tan maravilloso! Puedo darte un resumen sin spoilers, análisis de personajes o exploración temática — ¿qué te ayudaría más?',
+  'Para ese género tengo exactamente lo que necesitas. Dame un momento mientras proceso tus preferencias... ✦',
+  'Llevas un ritmo de lectura fantástico. Si mantienes este paso, alcanzarás el nivel Intermedio en solo 2 semanas más. ¡Sigue así! 🔥',
+];
+let aiIdx = 0;
+
+function sendAiMessage() {
+  const input = document.getElementById('aiInput');
+  const msg = input.value.trim();
+  if (!msg) return;
+  const msgs = document.getElementById('aiMessages');
+
+  const userMsg = document.createElement('div');
+  userMsg.className = 'ai-msg user';
+  userMsg.textContent = msg;
+  msgs.appendChild(userMsg);
+  input.value = '';
+  msgs.scrollTop = msgs.scrollHeight;
+
+  // Typing indicator
+  const typing = document.createElement('div');
+  typing.className = 'ai-typing';
+  typing.innerHTML = '<span></span><span></span><span></span>';
+  msgs.appendChild(typing);
+  msgs.scrollTop = msgs.scrollHeight;
+
+  setTimeout(() => {
+    typing.remove();
+    const botMsg = document.createElement('div');
+    botMsg.className = 'ai-msg bot';
+    botMsg.textContent = respuestasIA[aiIdx % respuestasIA.length];
+    aiIdx++;
+    msgs.appendChild(botMsg);
+    msgs.scrollTop = msgs.scrollHeight;
+  }, 1200);
+}
+</script>
+</body>
+</html>
