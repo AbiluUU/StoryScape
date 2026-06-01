@@ -210,12 +210,83 @@
   .book-card { border-radius: var(--radius-sm); background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); overflow: hidden; transition: transform 0.3s, box-shadow 0.3s; cursor: pointer; }
   .book-card:hover { transform: translateY(-6px) scale(1.02); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
   .book-cover { width: 100%; aspect-ratio: 2/3; display: flex; align-items: flex-end; padding: 1rem; position: relative; overflow: hidden; }
+  .book-cover img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
+  .book-card:hover .book-cover img { transform: scale(1.06); }
   .book-cover-bg { position: absolute; inset: 0; transition: transform 0.5s; }
   .book-card:hover .book-cover-bg { transform: scale(1.05); }
   .book-cover-title { position: relative; z-index: 1; font-family: 'Cormorant Garamond', serif; font-size: 0.95rem; font-weight: 600; line-height: 1.2; color: white; text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
-  .book-info { padding: 0.75rem; }
+  .book-info { padding: 0.75rem 0.75rem 0.5rem; }
   .book-author { font-size: 0.75rem; color: var(--text-muted); }
   .book-rating { font-size: 0.75rem; color: var(--gold); margin-top: 0.2rem; }
+  .book-add-btn {
+    display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+    width: calc(100% - 1.5rem); margin: 0 0.75rem 0.75rem;
+    padding: 0.45rem; border-radius: 50px;
+    border: 1px solid var(--glass-border); background: rgba(123,94,167,0.1);
+    color: var(--purple-light); font-size: 0.72rem; font-family: 'Inter', sans-serif;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .book-add-btn:hover { background: rgba(123,94,167,0.25); border-color: var(--purple); }
+  .book-add-btn.added { background: rgba(74,222,128,0.1); border-color: rgba(74,222,128,0.4); color: #4ade80; cursor: default; }
+
+  /* WISHLIST MODAL */
+  .wishlist-modal {
+    position: fixed; inset: 0; z-index: 260;
+    background: rgba(0,0,0,0.75); backdrop-filter: blur(12px);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.3s; padding: 1.5rem;
+  }
+  .wishlist-modal.open { opacity: 1; pointer-events: all; }
+  .wishlist-box {
+    background: var(--bg2); border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg); width: 100%; max-width: 600px;
+    max-height: 80vh; display: flex; flex-direction: column;
+    animation: fadeUp 0.3s ease both; overflow: hidden;
+  }
+  .wishlist-header {
+    padding: 1.5rem 1.75rem; border-bottom: 1px solid var(--glass-border);
+    display: flex; align-items: center; justify-content: space-between;
+    background: linear-gradient(135deg, rgba(123,94,167,0.15), rgba(59,111,212,0.08));
+    flex-shrink: 0;
+  }
+  .wishlist-header h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 300; }
+  .wishlist-header span { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.15rem; display: block; }
+  .wishlist-close { background: none; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer; transition: color 0.2s; }
+  .wishlist-close:hover { color: var(--text); }
+  .wishlist-body { overflow-y: auto; padding: 1.25rem; flex: 1; display: flex; flex-direction: column; gap: 0.75rem; }
+  .wishlist-body::-webkit-scrollbar { width: 4px; }
+  .wishlist-body::-webkit-scrollbar-thumb { background: rgba(123,94,167,0.3); border-radius: 2px; }
+  .wishlist-empty { text-align: center; padding: 3rem 1rem; color: var(--text-dim); font-size: 0.9rem; }
+  .wishlist-empty span { font-size: 2.5rem; display: block; margin-bottom: 0.75rem; }
+  .wishlist-item {
+    display: flex; align-items: center; gap: 1rem;
+    padding: 0.85rem 1rem; border-radius: var(--radius-sm);
+    background: var(--glass); border: 1px solid var(--glass-border);
+    transition: all 0.2s; animation: fadeUp 0.3s ease both;
+  }
+  .wishlist-item:hover { background: var(--glass-hover); border-color: rgba(123,94,167,0.3); }
+  .wishlist-thumb {
+    width: 44px; height: 60px; border-radius: 4px; object-fit: cover;
+    flex-shrink: 0; background: var(--glass);
+  }
+  .wishlist-thumb-placeholder {
+    width: 44px; height: 60px; border-radius: 4px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem; border: 1px solid var(--glass-border);
+  }
+  .wishlist-item-title { font-weight: 500; font-size: 0.9rem; }
+  .wishlist-item-author { font-size: 0.78rem; color: var(--text-muted); margin-top: 0.15rem; }
+  .wishlist-item-rating { font-size: 0.72rem; color: var(--gold); margin-top: 0.2rem; }
+  .wishlist-remove {
+    margin-left: auto; background: none; border: none;
+    color: var(--text-dim); font-size: 1rem; cursor: pointer;
+    transition: color 0.2s; padding: 0.25rem; flex-shrink: 0;
+  }
+  .wishlist-remove:hover { color: #f87171; }
+  .wishlist-footer {
+    padding: 1rem 1.75rem; border-top: 1px solid var(--glass-border);
+    display: flex; gap: 0.75rem; flex-shrink: 0;
+  }
 
   /* AI COMPANION */
   .ai-companion-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center; }
@@ -479,6 +550,24 @@
   </div>
 </div>
 
+<!-- MODAL LISTA DE DESEOS -->
+<div class="modal-overlay" id="modalWishlist">
+  <div class="modal-box" style="max-width:720px;width:100%">
+    <button class="modal-close-btn" onclick="closeModal('modalWishlist')">✕</button>
+    <div class="section-label" style="margin-bottom:0.4rem">✦ Tu colección</div>
+    <h3 style="display:flex;align-items:center;gap:0.75rem">
+      Lista de Deseos
+      <span id="wishlistCountModal" class="wishlist-count" style="font-family:'Inter',sans-serif;font-size:1rem;font-weight:600;background:rgba(123,94,167,0.2);border:1px solid rgba(123,94,167,0.4);color:var(--purple-light);padding:0.2rem 0.7rem;border-radius:50px">0</span>
+    </h3>
+    <p style="margin-bottom:1.5rem">Los libros que quieres leer. Haz clic en un libro de la sección de géneros para añadirlo o quitarlo.</p>
+    <div id="wishlistGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:1rem;max-height:420px;overflow-y:auto;padding-right:0.25rem"></div>
+    <div style="margin-top:1.5rem;display:flex;gap:0.75rem;justify-content:flex-end;flex-wrap:wrap">
+      <button class="btn-secondary" style="padding:0.65rem 1.4rem;font-size:0.85rem" onclick="wishlist=[];renderWishlist();showToast('Lista vaciada 🗑️')">Vaciar lista</button>
+      <button class="btn-primary" style="padding:0.65rem 1.4rem;font-size:0.85rem" onclick="closeModal('modalWishlist');showToast('¡Lista guardada! 💜 Próximamente sincronización en la nube.')">Guardar lista ✦</button>
+    </div>
+  </div>
+</div>
+
 <!-- NAV -->
 <nav id="navbar">
   <div class="nav-logo" onclick="scrollToTop()">Story<span>Scape</span></div>
@@ -576,7 +665,12 @@
       </div>
     </div>
     <div class="book-recommendations" id="bookRecs">
-      <div class="rec-title" id="recTitle">Curado especialmente para ti ✦</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;margin-bottom:1.5rem">
+        <div class="rec-title" id="recTitle" style="margin-bottom:0">Curado especialmente para ti ✦</div>
+        <button onclick="openModal('modalWishlist')" style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 1.1rem;border-radius:50px;border:1px solid rgba(232,111,168,0.4);background:rgba(232,111,168,0.1);color:#E86FA8;font-size:0.8rem;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.2s" onmouseover="this.style.background='rgba(232,111,168,0.2)'" onmouseout="this.style.background='rgba(232,111,168,0.1)'">
+          💜 Mi lista <span id="wishlistCountButton" class="wishlist-count" style="background:rgba(232,111,168,0.3);border-radius:50px;padding:0.1rem 0.45rem;font-weight:600">0</span>
+        </button>
+      </div>
       <div class="book-cards-row" id="bookCardsRow"></div>
     </div>
   </div>
@@ -1011,60 +1105,135 @@ for (let i = 0; i < 9; i++) {
   flamesWrap.appendChild(f);
 }
 
-// ── EMOTION BOOKS ──
+// ── LISTA DE DESEOS ──
+let wishlist = [];
+
+function toggleWishlist(titulo, autor, rating, img, color) {
+  const idx = wishlist.findIndex(b => b.titulo === titulo);
+  if (idx === -1) {
+    wishlist.push({ titulo, autor, rating, img, color });
+    showToastWithAction(`📖 <strong>${titulo}</strong> añadido a tu lista ✦`, '💜 Ver lista', () => openModal('modalWishlist'));
+  } else {
+    wishlist.splice(idx, 1);
+    showToast(`🗑️ "${titulo}" quitado de tu lista`);
+  }
+  renderWishlist();
+}
+
+function renderWishlist() {
+  const container = document.getElementById('wishlistGrid');
+  document.querySelectorAll('.wishlist-count').forEach(el => el.textContent = wishlist.length);
+  if (!container) return;
+  if (wishlist.length === 0) {
+    container.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:3rem 1rem;color:var(--text-dim)">
+      <div style="font-size:3rem;margin-bottom:1rem">📚</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;margin-bottom:0.5rem">Tu lista está vacía</div>
+      <div style="font-size:0.85rem">Explora géneros y añade libros que quieras leer</div>
+    </div>`;
+    return;
+  }
+  container.innerHTML = wishlist.map(b => `
+    <div style="border-radius:12px;overflow:hidden;background:var(--glass);border:1px solid var(--glass-border);transition:transform 0.2s" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='none'">
+      <div style="height:180px;position:relative;background:${b.color};overflow:hidden">
+        <img src="${b.img}" alt="${b.titulo}" style="width:100%;height:100%;object-fit:cover;display:block" onerror="this.style.display='none'">
+        <div style="position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,rgba(0,0,0,0.85))"></div>
+        <div style="position:absolute;bottom:0.6rem;left:0.75rem;right:0.75rem;font-family:'Cormorant Garamond',serif;font-size:0.9rem;font-weight:600;color:white;text-shadow:0 2px 8px rgba(0,0,0,0.9);line-height:1.2">${b.titulo}</div>
+        <button onclick="toggleWishlist('${b.titulo}','${b.autor}','${b.rating}','${b.img}','${b.color}')" style="position:absolute;top:0.5rem;right:0.5rem;background:rgba(232,111,168,0.85);border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:0.85rem;display:flex;align-items:center;justify-content:center" title="Quitar de lista">✕</button>
+      </div>
+      <div style="padding:0.65rem 0.75rem">
+        <div style="font-size:0.75rem;color:var(--text-muted)">${b.autor}</div>
+        <div style="font-size:0.72rem;color:var(--gold);margin-top:0.2rem">${b.rating}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function showToastWithAction(html, btnText, btnAction) {
+  const t = document.getElementById('toast');
+  t.innerHTML = html + `&nbsp;&nbsp;<span onclick="(${btnAction})()" style="color:var(--gold);cursor:pointer;font-weight:600;text-decoration:underline">${btnText}</span>`;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.classList.remove('show'); }, 4000);
+}
+
+// ── EMOTION BOOKS — con imágenes de Open Library ──
 const emotionBooks = {
   aventura: {
     titulo: 'Tu aventura te espera ⚔️',
     libros: [
-      { titulo: 'Dune', autor: 'Frank Herbert', rating: '★★★★★', color: '#6B4C11', acento: '#C9A84C' },
-      { titulo: 'El Hobbit', autor: 'J.R.R. Tolkien', rating: '★★★★★', color: '#1A4C2A', acento: '#4ade80' },
-      { titulo: 'La Isla del Tesoro', autor: 'R.L. Stevenson', rating: '★★★★☆', color: '#3B2A0A', acento: '#E8935A' },
-      { titulo: 'En el Camino', autor: 'Jack Kerouac', rating: '★★★★☆', color: '#1A2C4A', acento: '#6B9FFF' },
+      { titulo: 'Dune', autor: 'Frank Herbert', rating: '★★★★★', color: '#6B4C11', acento: '#C9A84C',
+        img: 'https://covers.openlibrary.org/b/id/11151606-L.jpg' },
+      { titulo: 'El Hobbit', autor: 'J.R.R. Tolkien', rating: '★★★★★', color: '#1A4C2A', acento: '#4ade80',
+        img: 'https://covers.openlibrary.org/b/id/8406786-L.jpg' },
+      { titulo: 'La Isla del Tesoro', autor: 'R.L. Stevenson', rating: '★★★★☆', color: '#3B2A0A', acento: '#E8935A',
+        img: 'https://covers.openlibrary.org/b/id/8739161-L.jpg' },
+      { titulo: 'En el Camino', autor: 'Jack Kerouac', rating: '★★★★☆', color: '#1A2C4A', acento: '#6B9FFF',
+        img: 'https://covers.openlibrary.org/b/id/8231432-L.jpg' },
     ]
   },
   romance: {
     titulo: 'Historias del corazón 💫',
     libros: [
-      { titulo: 'Orgullo y Prejuicio', autor: 'Jane Austen', rating: '★★★★★', color: '#3A1525', acento: '#E86FA8' },
-      { titulo: 'El Cuaderno', autor: 'Nicholas Sparks', rating: '★★★★☆', color: '#1A1535', acento: '#A07EC8' },
-      { titulo: 'Outlander', autor: 'Diana Gabaldon', rating: '★★★★★', color: '#2A1A0A', acento: '#C9A84C' },
-      { titulo: 'Antes de Ti', autor: 'Jojo Moyes', rating: '★★★★☆', color: '#1A2A1A', acento: '#4ade80' },
+      { titulo: 'Orgullo y Prejuicio', autor: 'Jane Austen', rating: '★★★★★', color: '#3A1525', acento: '#E86FA8',
+        img: 'https://covers.openlibrary.org/b/id/8739889-L.jpg' },
+      { titulo: 'El Cuaderno', autor: 'Nicholas Sparks', rating: '★★★★☆', color: '#1A1535', acento: '#A07EC8',
+        img: 'https://covers.openlibrary.org/b/id/8231696-L.jpg' },
+      { titulo: 'Outlander', autor: 'Diana Gabaldon', rating: '★★★★★', color: '#2A1A0A', acento: '#C9A84C',
+        img: 'https://covers.openlibrary.org/b/id/8406626-L.jpg' },
+      { titulo: 'Antes de Ti', autor: 'Jojo Moyes', rating: '★★★★☆', color: '#1A2A1A', acento: '#4ade80',
+        img: 'https://covers.openlibrary.org/b/id/8228798-L.jpg' },
     ]
   },
   misterio: {
     titulo: 'Secretos y sombras 🔍',
     libros: [
-      { titulo: 'La Sombra del Viento', autor: 'Carlos Ruiz Zafón', rating: '★★★★★', color: '#0A0A2A', acento: '#6B9FFF' },
-      { titulo: 'El Código Da Vinci', autor: 'Dan Brown', rating: '★★★★☆', color: '#1A0A0A', acento: '#E86FA8' },
-      { titulo: 'Y No Quedó Ninguno', autor: 'Agatha Christie', rating: '★★★★★', color: '#0A1A0A', acento: '#4ade80' },
-      { titulo: 'Rebecca', autor: 'Daphne du Maurier', rating: '★★★★★', color: '#1A1A0A', acento: '#C9A84C' },
+      { titulo: 'La Sombra del Viento', autor: 'Carlos Ruiz Zafón', rating: '★★★★★', color: '#0A0A2A', acento: '#6B9FFF',
+        img: 'https://covers.openlibrary.org/b/id/8226716-L.jpg' },
+      { titulo: 'El Código Da Vinci', autor: 'Dan Brown', rating: '★★★★☆', color: '#1A0A0A', acento: '#E86FA8',
+        img: 'https://covers.openlibrary.org/b/id/8227798-L.jpg' },
+      { titulo: 'Y No Quedó Ninguno', autor: 'Agatha Christie', rating: '★★★★★', color: '#0A1A0A', acento: '#4ade80',
+        img: 'https://covers.openlibrary.org/b/id/8406910-L.jpg' },
+      { titulo: 'Rebecca', autor: 'Daphne du Maurier', rating: '★★★★★', color: '#1A1A0A', acento: '#C9A84C',
+        img: 'https://covers.openlibrary.org/b/id/8224798-L.jpg' },
     ]
   },
   inspiracion: {
     titulo: 'Luz para tu camino 🌅',
     libros: [
-      { titulo: 'El Hombre en Busca de Sentido', autor: 'Viktor Frankl', rating: '★★★★★', color: '#2A1A0A', acento: '#C9A84C' },
-      { titulo: 'El Alquimista', autor: 'Paulo Coelho', rating: '★★★★★', color: '#0A1A2A', acento: '#6B9FFF' },
-      { titulo: 'Una Vida con Propósito', autor: 'Rick Warren', rating: '★★★★☆', color: '#1A0A2A', acento: '#A07EC8' },
-      { titulo: 'Hábitos Atómicos', autor: 'James Clear', rating: '★★★★★', color: '#0A1A0A', acento: '#4ade80' },
+      { titulo: 'El Hombre en Busca de Sentido', autor: 'Viktor Frankl', rating: '★★★★★', color: '#2A1A0A', acento: '#C9A84C',
+        img: 'https://covers.openlibrary.org/b/id/8228230-L.jpg' },
+      { titulo: 'El Alquimista', autor: 'Paulo Coelho', rating: '★★★★★', color: '#0A1A2A', acento: '#6B9FFF',
+        img: 'https://covers.openlibrary.org/b/id/8227174-L.jpg' },
+      { titulo: 'Hábitos Atómicos', autor: 'James Clear', rating: '★★★★★', color: '#0A1A0A', acento: '#4ade80',
+        img: 'https://covers.openlibrary.org/b/id/10527843-L.jpg' },
+      { titulo: 'Sapiens', autor: 'Yuval Noah Harari', rating: '★★★★★', color: '#1A0A1A', acento: '#A07EC8',
+        img: 'https://covers.openlibrary.org/b/id/8406798-L.jpg' },
     ]
   },
   fantasia: {
     titulo: 'Mundos más allá del mundo 🧙',
     libros: [
-      { titulo: 'El Nombre del Viento', autor: 'Patrick Rothfuss', rating: '★★★★★', color: '#1A0A2A', acento: '#A07EC8' },
-      { titulo: 'El Señor de los Anillos', autor: 'J.R.R. Tolkien', rating: '★★★★★', color: '#0A0A1A', acento: '#6B9FFF' },
-      { titulo: 'El Circo de la Noche', autor: 'Erin Morgenstern', rating: '★★★★★', color: '#1A1A1A', acento: '#E8C97A' },
-      { titulo: 'Sombra y Hueso', autor: 'Leigh Bardugo', rating: '★★★★☆', color: '#2A0A0A', acento: '#E86FA8' },
+      { titulo: 'El Nombre del Viento', autor: 'Patrick Rothfuss', rating: '★★★★★', color: '#1A0A2A', acento: '#A07EC8',
+        img: 'https://covers.openlibrary.org/b/id/8406600-L.jpg' },
+      { titulo: 'El Señor de los Anillos', autor: 'J.R.R. Tolkien', rating: '★★★★★', color: '#0A0A1A', acento: '#6B9FFF',
+        img: 'https://covers.openlibrary.org/b/id/8406786-L.jpg' },
+      { titulo: 'El Circo de la Noche', autor: 'Erin Morgenstern', rating: '★★★★★', color: '#1A1A1A', acento: '#E8C97A',
+        img: 'https://covers.openlibrary.org/b/id/7898638-L.jpg' },
+      { titulo: 'Sombra y Hueso', autor: 'Leigh Bardugo', rating: '★★★★☆', color: '#2A0A0A', acento: '#E86FA8',
+        img: 'https://covers.openlibrary.org/b/id/10290771-L.jpg' },
     ]
   },
   crecimiento: {
     titulo: 'Semillas de transformación 🌱',
     libros: [
-      { titulo: 'Hábitos Atómicos', autor: 'James Clear', rating: '★★★★★', color: '#0A1A0A', acento: '#4ade80' },
-      { titulo: 'Pensar Rápido, Pensar Despacio', autor: 'D. Kahneman', rating: '★★★★★', color: '#0A0A1A', acento: '#6B9FFF' },
-      { titulo: 'Sapiens', autor: 'Yuval Noah Harari', rating: '★★★★★', color: '#1A0A0A', acento: '#E8935A' },
-      { titulo: 'Meditaciones', autor: 'Marco Aurelio', rating: '★★★★★', color: '#1A1A0A', acento: '#C9A84C' },
+      { titulo: 'Hábitos Atómicos', autor: 'James Clear', rating: '★★★★★', color: '#0A1A0A', acento: '#4ade80',
+        img: 'https://covers.openlibrary.org/b/id/10527843-L.jpg' },
+      { titulo: 'Pensar Rápido, Pensar Despacio', autor: 'D. Kahneman', rating: '★★★★★', color: '#0A0A1A', acento: '#6B9FFF',
+        img: 'https://covers.openlibrary.org/b/id/8406924-L.jpg' },
+      { titulo: 'Sapiens', autor: 'Yuval Noah Harari', rating: '★★★★★', color: '#1A0A0A', acento: '#E8935A',
+        img: 'https://covers.openlibrary.org/b/id/8406798-L.jpg' },
+      { titulo: 'Meditaciones', autor: 'Marco Aurelio', rating: '★★★★★', color: '#1A1A0A', acento: '#C9A84C',
+        img: 'https://covers.openlibrary.org/b/id/8226380-L.jpg' },
     ]
   }
 };
@@ -1075,19 +1244,25 @@ function selectEmotion(card) {
   const data = emotionBooks[card.dataset.emotion];
   if (!data) return;
   document.getElementById('recTitle').textContent = data.titulo;
-  document.getElementById('bookCardsRow').innerHTML = data.libros.map(b => `
-    <div class="book-card" onclick="showToast('📖 ${b.titulo} — añadido a tu lista de deseos ✦')">
-      <div class="book-cover" style="background:${b.color}">
-        <div class="book-cover-bg" style="background:linear-gradient(160deg,${b.acento}33,${b.color})"></div>
-        <div style="position:absolute;inset:0;background:linear-gradient(to bottom,transparent 30%,rgba(0,0,0,0.85))"></div>
-        <div class="book-cover-title">${b.titulo}</div>
+  document.getElementById('bookCardsRow').innerHTML = data.libros.map(b => {
+    const inList = wishlist.some(w => w.titulo === b.titulo);
+    return `
+    <div class="book-card" onclick="toggleWishlist('${b.titulo.replace(/'/g,"\\'")}','${b.autor.replace(/'/g,"\\'")}','${b.rating}','${b.img}','${b.color}')">
+      <div class="book-cover" style="background:${b.color};position:relative">
+        <img src="${b.img}" alt="${b.titulo}"
+          style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform 0.5s"
+          onerror="this.style.display='none'">
+        <div style="position:absolute;inset:0;background:linear-gradient(to bottom,transparent 35%,rgba(0,0,0,0.88))"></div>
+        <div class="book-cover-title" style="position:relative;z-index:1">${b.titulo}</div>
+        <div style="position:absolute;top:0.5rem;right:0.5rem;z-index:2;background:${inList ? 'rgba(232,111,168,0.9)' : 'rgba(0,0,0,0.5)'};border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:0.85rem;transition:all 0.2s" class="wish-icon-${b.titulo.replace(/\s/g,'_')}">${inList ? '💜' : '🤍'}</div>
       </div>
       <div class="book-info">
         <div class="book-author">${b.autor}</div>
         <div class="book-rating">${b.rating}</div>
+        <div style="font-size:0.7rem;color:${inList ? '#E86FA8' : 'var(--text-dim)'};margin-top:0.2rem">${inList ? '✓ En tu lista' : '+ Añadir a lista'}</div>
       </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
   const rec = document.getElementById('bookRecs');
   rec.classList.add('visible');
   setTimeout(() => rec.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
