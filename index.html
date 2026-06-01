@@ -242,12 +242,45 @@ footer{position:relative;z-index:1;border-top:1px solid var(--cream3);padding:4r
 .ai-float-bubble{background:var(--paper);border:1px solid var(--cream3);border-radius:14px 14px 4px 14px;padding:.7rem .95rem;font-size:.76rem;color:var(--ink3);box-shadow:var(--sh-md);max-width:215px;display:none;animation:fadeUp .3s ease both}
 .ai-float-bubble.visible{display:block}
 .ai-float-bubble strong{color:var(--terra);font-weight:500;display:block;margin-bottom:.15rem}
-.ai-float-btn{width:54px;height:54px;border-radius:50%;background:var(--terra);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.3rem;color:white;box-shadow:0 4px 20px rgba(184,92,56,.35);animation:breathBtn 3s ease-in-out infinite;transition:transform .2s;position:relative}
+.ai-float-btn{width:54px;height:54px;border-radius:50%;background:rgb(11, 148, 129);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.3rem;color:white;box-shadow:0 4px 20px rgba(11, 148, 129);animation:breathBtn 3s ease-in-out infinite;transition:transform .2s;position:relative}
 .ai-float-btn:hover{transform:scale(1.08)}
-@keyframes breathBtn{0%,100%{box-shadow:0 4px 20px rgba(184,92,56,.35)}50%{box-shadow:0 4px 28px rgba(184,92,56,.55)}}
+@keyframes breathBtn{0%,100%{box-shadow:0 4px 20px rgba(11, 148, 129)}50%{box-shadow:0 4px 28px rgba(11, 148, 129)}}
 .ai-float-btn .notif{position:absolute;top:1px;right:1px;width:13px;height:13px;border-radius:50%;background:var(--gold);border:2px solid var(--cream);font-size:.48rem;display:flex;align-items:center;justify-content:center;color:white;font-weight:700}
 
-.ai-modal{position:fixed;bottom:6.5rem;right:2rem;z-index:201;width:355px;border-radius:var(--r-lg);background:var(--paper);border:1px solid var(--cream3);box-shadow:var(--sh-lg);overflow:hidden;flex-direction:column;opacity:0;transform:translateY(16px) scale(.96);transition:opacity .3s ease,transform .3s ease;pointer-events:none}
+/* Ajusta las dimensiones del contenedor principal */
+.ai-modal {
+  position: fixed;
+  bottom: 95px; /* Lo separa un poco del botón flotante naranja */
+  right: 20px;
+  width: 360px;  /* Mantiene un ancho limpio como el de tu captura */
+  
+  /* CAMBIO CLAVE: Más estilizado y alto hacia arriba */
+  height: 520px; /* Sube la altura a tu gusto (ej. 500px, 520px, 550px) */
+  
+  background-color: #f6f1eb; /* Fondo similar al tono crema de tu app */
+  border-radius: 20px;       /* Bordes redondeados idénticos a tu diseño */
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Fuerza al cuerpo del chat a estirarse verticalmente */
+.ai-modal-body {
+  flex: 1;             /* Esto empuja el header hacia arriba y el badge hacia abajo */
+  width: 100%;
+  height: calc(100% - 110px); /* Asegura que el iframe no se desborde */
+}
+
+/* El iframe debe rellenar el contenedor al 100% */
+#nexiusIframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
 .ai-modal.visible{opacity:1;transform:translateY(0) scale(1);pointer-events:all}
 .ai-modal-header{padding:1.1rem 1.4rem;background:var(--cream2);border-bottom:1px solid var(--cream3);display:flex;align-items:center;gap:.75rem}
 .ai-modal-avatar{width:34px;height:34px;border-radius:50%;background:var(--terra);display:flex;align-items:center;justify-content:center;font-size:.95rem;color:white;flex-shrink:0}
@@ -576,17 +609,31 @@ footer{position:relative;z-index:1;border-top:1px solid var(--cream3);padding:4r
 </footer>
 
 <div class="ai-float">
-  <div class="ai-float-bubble" id="aiBubble"><strong>Nexius IA</strong>¡Pregúntame cualquier cosa sobre libros!</div>
-  <button class="ai-float-btn" onclick="openAI()" aria-label="Abrir Nexius IA">📖<div class="notif" id="aiNotif">1</div></button>
+  <div class="ai-float-bubble" id="aiBubble">
+    <strong>Nexius IA</strong> ¡Pregúntame cualquier cosa sobre libros!
+  </div>
+  <button class="ai-float-btn" onclick="openAI()" aria-label="Abrir Nexius IA">
+    <img src="img/image.png" alt="Azure AI" width="26" height="26">
+    <div class="notif" id="aiNotif">1</div>
+  </button>
 </div>
 
-<div class="ai-modal" id="aiModal" style="display:none;flex-direction:column">
+<div class="ai-modal" id="aiModal" style="display:none; flex-direction:column;">
   <div class="ai-modal-header">
-    <div class="ai-modal-avatar">📚</div>
-    <div><div class="ai-modal-name">Nexius IA</div><div class="ai-modal-status"><span class="status-dot"></span>Lista para explorar</div></div>
+    <div class="ai-modal-avatar">
+      <img src="img/image.png" alt="Azure AI" width="40" height="40">
+    </div>
+    <div class="ai-modal-info">
+      <div class="ai-modal-name">Nexius IA</div>
+      <div class="ai-modal-status"><span class="status-dot"></span>Lista para explorar</div>
+    </div>
     <button class="ai-modal-close" onclick="closeAI()">✕</button>
   </div>
-  <iframe id="nexiusIframe" src="https://webchat.botframework.com/embed/storyscape-bot?s=6qhNXEz03josC0aSh6I1bIbktIebuGcxXWAKI7sl8QVat7EQQww2JQQJ99CEACZoyfiAArohAAABAZBS3xgp.CoVHKygqbOdUw9P5nTE8MsgMcDqskSJsJ3Io31qRl7KcMtRRnA5uJQQJ99CEACZoyfiAArohAAABAZBS2HL3" style="width:100%;height:360px;border:none;display:block;background:var(--cream)" allow="microphone" title="Nexius IA"></iframe>
+  
+  <div class="ai-modal-body">
+    <iframe id="nexiusIframe" src="https://webchat.botframework.com/embed/storyscape-bot?s=6qhNXEz03josC0aSh6I1bIbktIebuGcxXWAKI7sl8QVat7EQQww2JQQJ99CEACZoyfiAArohAAABAZBS3xgp.CoVHKygqbOdUw9P5nTE8MsgMcDqskSJsJ3Io31qRl7KcMtRRnA5uJQQJ99CEACZoyfiAArohAAABAZBS2HL3" style="width:100%; height:100%; border:none; background:var(--cream, #f9f6f0);" allow="microphone" title="Nexius IA"></iframe>
+  </div>
+  
   <div class="azure-badge">⚡ Powered by Azure AI · Nexius IA</div>
 </div>
 
